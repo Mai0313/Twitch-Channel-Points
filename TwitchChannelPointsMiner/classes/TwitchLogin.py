@@ -23,18 +23,18 @@ from TwitchChannelPointsMiner.constants import CLIENT_ID, USER_AGENTS, GQLOperat
 
 logger = logging.getLogger(__name__)
 
-"""def interceptor(request) -> str:
-    if (
-        request.method == 'POST'
-        and request.url == 'https://passport.twitch.tv/protected_login'
-    ):
-        import json
-        body = request.body.decode('utf-8')
-        data = json.loads(body)
-        data['client_id'] = CLIENT_ID
-        request.body = json.dumps(data).encode('utf-8')
-        del request.headers['Content-Length']
-        request.headers['Content-Length'] = str(len(request.body))"""
+# def interceptor(request) -> str:
+#     if (
+#         request.method == 'POST'
+#         and request.url == 'https://passport.twitch.tv/protected_login'
+#     ):
+#         import json
+#         body = request.body.decode('utf-8')
+#         data = json.loads(body)
+#         data['client_id'] = CLIENT_ID
+#         request.body = json.dumps(data).encode('utf-8')
+#         del request.headers['Content-Length']
+#         request.headers['Content-Length'] = str(len(request.body))
 
 
 class TwitchLogin:

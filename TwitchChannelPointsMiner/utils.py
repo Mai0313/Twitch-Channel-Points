@@ -136,8 +136,8 @@ def set_default_settings(settings, defaults):
     return deepcopy(defaults) if settings is None else copy_values_if_none(settings, defaults)
 
 
-"""def char_decision_as_index(char):
-    return 0 if char == "A" else 1"""
+# def char_decision_as_index(char):
+#     return 0 if char == "A" else 1
 
 
 def internet_connection_available(host="8.8.8.8", port=53, timeout=3):
