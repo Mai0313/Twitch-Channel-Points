@@ -1,5 +1,5 @@
 username: mai313
-password: A1z2s3x4566.  # If no password will be provided, the script will ask interactively
+password: xxxxxxxx  # If no password will be provided, the script will ask interactively
 
 claim_drops_startup: False  # set it to True if you want to auto claim all drops from Twitch inventory on the startup
 
@@ -13,7 +13,7 @@ telegram:
   disable_notification: False  # Revoke the notification (sound/vibration)
 
 discord:
-  webhook_api: https://discord.com/api/webhooks/0123456789/0a1B2c3D4e5F6g7H8i9J  # Discord Webhook URL
+  webhook_api: https://discord.com/api/webhooks/xxxxxxxxxx/xxxxxxxxxx  # Discord Webhook URL
 
 bet_strategy:
   make_predictions: False  # If you want to Bet / Make prediction
