@@ -1,26 +1,22 @@
-# Description
+## What does this PR do?
 
-Please include a summary of the change and which issue is fixed. Please also include relevant motivation and context. List any dependencies that are required for this change.
+<!--
+Please include a summary of the change and which issue is fixed.
+Please also include relevant motivation and context.
+List any dependencies that are required for this change.
+List all the breaking changes introduced by this pull request.
+-->
 
-Fixes # (issue)
+Fixes #\<issue_number>
 
-## Type of change
+## Before submitting
 
-Please delete options that are not relevant.
+- [ ] Did you make sure **title is self-explanatory** and **the description concisely explains the PR**?
+- [ ] Did you make sure your **PR does only one thing**, instead of bundling different changes together?
+- [ ] Did you list all the **breaking changes** introduced by this pull request?
+- [ ] Did you **test your PR locally** with `pytest` command?
+- [ ] Did you **run pre-commit hooks** with `pre-commit run -a` command?
 
-- [ ] Bug fix (non-breaking change which fixes an issue)
-- [ ] New feature (non-breaking change which adds functionality)
-- [ ] Breaking change (fix or feature that would cause existing functionality not to work as expected)
+## Did you have fun?
 
-# How Has This Been Tested?
-
-Please describe the tests that you ran to verify your changes. Provide instructions so we can reproduce. Please also list any relevant details for your test configuration.
-
-# Checklist:
-
-- [ ] My code follows the style guidelines of this project
-- [ ] I have performed a self-review of my code
-- [ ] I have commented on my code, particularly in hard-to-understand areas
-- [ ] I have made corresponding changes to the documentation (README.md)
-- [ ] My changes generate no new warnings
-- [ ] Any dependent changes have been updated in requirements.txt
+Make sure you had fun coding 🙃

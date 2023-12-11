@@ -1,0 +1,58 @@
+name: Pre-commit auto-update
+
+on:
+  # every day at midnight
+  schedule:
+    - cron: "0 0 * * *"
+  # manually trigger a workflow_dispatch event
+  workflow_dispatch:
+
+jobs:
+  auto-update:
+    runs-on: ubuntu-latest
+    # container: catthehacker/ubuntu:act-latest  # Uncomment it if you use it on Gitea
+
+    permissions:
+      # write permission is required to create a github release
+      contents: write
+      # write permission is required for autolabeler
+      # otherwise, read permission is required at least
+      pull-requests: write
+
+    steps:
+      - name: Disable SSL Verify
+        run: git config --global http.sslVerify false
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          token: ${{ secrets.GITHUB_TOKEN || secrets.GH_TOKEN }}
+
+      - name: Update Pre-Commit
+        uses: browniebroke/pre-commit-autoupdate-action@main
+
+      - name: Commit any changes
+        run: |
+          git add -A
+          git commit -m "Commit any changes before switching branches" || echo "No changes to commit"
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        id: pre-commit-autoupdate
+        with:
+          token: ${{ secrets.GITHUB_TOKEN || secrets.GH_TOKEN }}
+          branch: update/pre-commit-hooks
+          title: Update pre-commit hooks
+          commit-message: "chore: update pre-commit hooks"
+          body: Update versions of pre-commit hooks to latest version.
+
+      - name: Auto Merge Pull Request
+        if: steps.pre-commit-autoupdate.outputs.pull-request-number
+        run: |
+          gh pr merge --auto --merge update/pre-commit-hooks
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN || secrets.GH_TOKEN }}

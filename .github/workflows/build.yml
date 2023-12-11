@@ -1,0 +1,170 @@
+name: build-pipeline
+
+# on:
+#   push:
+#     branches:
+#       - master
+#   pull_request:
+#     branches:
+#       - master
+
+on:
+  push:
+    # branches to consider in the event; optional, defaults to all
+    branches:
+      - master
+  # # pull_request event is required only for autolabeler
+  # pull_request:
+  #   # Only following types are handled by the action, but one can default to all as well
+  #   types: [opened, reopened, synchronize]
+  # pull_request_target event is required for autolabeler to support PRs from forks
+  # pull_request_target:
+  #   types: [opened, reopened, synchronize]
+
+env:
+  REQUIREMENTS_FILE: requirements_build.txt
+  PYINSTALLER_FILE: main.py
+  ARTIFACT_NAME: main
+
+permissions:
+  contents: read
+
+jobs:
+  todo-to-issue:
+    runs-on: ubuntu-latest
+    # container: catthehacker/ubuntu:act-latest  # Uncomment it if you use it on Gitea
+
+    steps:
+      - name: Disable SSL Verify
+        run: git config --global http.sslVerify false
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Todo to Issue
+        id: todo-to-issue
+        uses: alstr/todo-to-issue-action@v4
+        with:
+          CLOSE_ISSUES: true
+          AUTO_P: true
+          AUTO_ASSIGN: true
+          ISSUE_TEMPLATE: "This is my issue title: **{{ title }}**\n\nThis is my issue body: **{{ body }}**\n\nThis is my code URL: **{{ url }}**\n\nThis is my snippet:\n\n{{ snippet }}"
+
+  build:
+    permissions:
+      # write permission is required to create a github release
+      contents: write
+      # write permission is required for autolabeler
+      # otherwise, read permission is required at least
+      pull-requests: write
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - windows-latest
+
+    steps:
+      - name: Disable SSL Verify
+        run: git config --global http.sslVerify false
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+          token: ${{ secrets.GITHUB_TOKEN || secrets.GH_TOKEN }}
+
+      # For Linux/MacOS
+      - name: Check if ${{ env.REQUIREMENTS_FILE }} exists (Unix)
+        id: checkfile_unix
+        run: |
+          if [ -f "${{ env.REQUIREMENTS_FILE }}" ]; then
+            echo "::set-output name=exists::true"
+          else
+            echo "::set-output name=exists::false"
+          fi
+        if: runner.os != 'Windows'
+        shell: bash
+
+      # For Windows
+      - name: Check if ${{ env.REQUIREMENTS_FILE }} exists (Windows)
+        id: checkfile_windows
+        run: |
+          if (Test-Path "${{ env.REQUIREMENTS_FILE }}") {
+            echo "::set-output name=exists::true"
+          } else {
+            echo "::set-output name=exists::false"
+          }
+        if: runner.os == 'Windows'
+        shell: pwsh  # PowerShell
+
+      - name: build exe
+        if: steps.checkfile_unix.outputs.exists == 'true' || steps.checkfile_windows.outputs.exists == 'true'
+        run: |
+          pip install -r ${{ env.REQUIREMENTS_FILE }}
+          pyinstaller --onefile ${{ env.PYINSTALLER_FILE }} -n ${{ env.ARTIFACT_NAME }}_${{ runner.os }}
+
+      # Optionally verify that it works (provided that it does not need user interaction)
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        if: steps.checkfile_unix.outputs.exists == 'true' || steps.checkfile_windows.outputs.exists == 'true'
+        with:
+          name: ${{ env.ARTIFACT_NAME }}_${{ runner.os }}
+          path: dist/*
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN || secrets.GH_TOKEN }}
+        with:
+          tag_name: ${{ github.run_id }}
+          release_name: Release ${{ github.run_id }}
+          draft: true
+          prerelease: false
+
+      - name: Upload Release Asset
+        id: upload-release-asset
+        if: steps.checkfile_unix.outputs.exists == 'true' || steps.checkfile_windows.outputs.exists == 'true'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN || secrets.GH_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/${{ env.ARTIFACT_NAME }}_${{ runner.os }}${{ runner.os == 'Windows' && '.exe' || '' }}
+          asset_name: ${{ env.ARTIFACT_NAME }}_${{ runner.os }}${{ runner.os == 'Windows' && '.exe' || '' }}
+          asset_content_type: application/octet-stream
+
+  update-release-draft:
+    permissions:
+      # write permission is required to create a github release
+      contents: write
+      # write permission is required for autolabeler
+      # otherwise, read permission is required at least
+      pull-requests: write
+    runs-on: ubuntu-latest
+    needs:
+      - build
+    # container: catthehacker/ubuntu:act-latest  # Uncomment it if you use it on Gitea
+
+    steps:
+      - name: Disable SSL Verify
+        run: git config --global http.sslVerify false
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Drafts your next Release notes as Pull Requests are merged into "master"
+      - name: Draft Release
+        uses: release-drafter/release-drafter@v5.25.0
+        id: draft
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN || secrets.GH_TOKEN }}
+        with:
+          publish: true
