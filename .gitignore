@@ -174,3 +174,6 @@ analytics/*
 keep_replit_alive.py
 .replit
 replit.nix
+
+# Config file
+/configs/setting.yaml

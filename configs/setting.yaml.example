@@ -1,0 +1,33 @@
+username: mai313
+password: xxxxxxxx  # If no password will be provided, the script will ask interactively
+
+claim_drops_startup: False  # set it to True if you want to auto claim all drops from Twitch inventory on the startup
+
+save: True  # If you want to save logs in a file (suggested)
+less: True  # If you think that the logs are too verbose, set this to True
+colored: True  # If you want to print colored text
+
+telegram:
+  chat_id: 123456789  # You can omit or leave None if you don't want to receive updates on Telegram
+  token: "123456789:ABCdefghIJKlmnOPQrstuVWxyZ"  # Chat ID to send messages @GiveChatId
+  disable_notification: False  # Revoke the notification (sound/vibration)
+
+discord:
+  webhook_api: https://discord.com/api/webhooks/xxxxxxxxxx/xxxxxxxxxx  # Discord Webhook URL
+
+bet_strategy:
+  make_predictions: False  # If you want to Bet / Make prediction
+  follow_raid: True  # Follow raid to obtain more points
+  claim_drops: True  # We can't filter rewards base on stream. Set to False for skip viewing counter increase and you will never obtain a drop reward from this script. Issue #21
+  watch_streak: True  # If a streamer go online change the priority of streamers array and catch the watch screak. Issue #11
+
+  percentage: 5  # Place the x% of your channel points
+  percentage_gap: 20  # Gap difference between outcomesA and outcomesB (for SMART strategy)
+  max_points: 50000  # If the x percentage of your channel points is gt bet_max_points set this value
+  stealth_mode: True  # If the calculated amount of channel points is GT the highest bet, place the highest value minus 1-2 points Issue #33
+  delay: 6
+  minimum_points: 20000  # Place the bet only if we have at least 20k points. Issue #113
+
+streamer:  # You can keep it in null if you wanna mine points from all streamers oyu follow
+  - takesipon
+  - kr1stw
