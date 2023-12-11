@@ -6,6 +6,7 @@ class Raid:
         self.target_login = target_login
 
     def __eq__(self, other):
+        """Returns a string representation of the EventPrediction object."""
         if isinstance(other, self.__class__):
             return self.raid_id == other.raid_id
         else:

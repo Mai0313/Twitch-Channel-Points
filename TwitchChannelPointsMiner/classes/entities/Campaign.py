@@ -37,9 +37,11 @@ class Campaign:
         self.drops = list(map(lambda x: Drop(x), dict["timeBasedDrops"]))
 
     def __repr__(self):
+        """Returns a string representation of the Campaign object."""
         return f"Campaign(id={self.id}, name={self.name}, game={self.game}, in_inventory={self.in_inventory})"
 
     def __str__(self):
+        """Returns a string representation of the Campaign object."""
         return (
             f"{self.name}, Game: {self.game['displayName']} - Drops: {len(self.drops)} pcs. - In inventory: {self.in_inventory}"
             if Settings.logger.less
@@ -52,6 +54,7 @@ class Campaign:
         )
 
     def __eq__(self, other):
+        """Overrides the default equality comparison for Campaign objects."""
         if isinstance(other, self.__class__):
             return self.id == other.id
         else:

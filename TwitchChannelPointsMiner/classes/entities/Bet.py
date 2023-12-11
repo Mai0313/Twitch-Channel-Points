@@ -1,6 +1,7 @@
 import copy
 from enum import Enum, auto
 from random import uniform
+from typing import Optional
 
 from millify import millify
 
@@ -16,6 +17,7 @@ class Strategy(Enum):
     SMART = auto()
 
     def __str__(self):
+        """Returns a string representation of the object."""
         return self.name
 
 
@@ -26,6 +28,7 @@ class Condition(Enum):
     LTE = auto()
 
     def __str__(self):
+        """Returns a string representation of the object."""
         return self.name
 
 
@@ -49,6 +52,7 @@ class DelayMode(Enum):
     PERCENTAGE = auto()
 
     def __str__(self):
+        """Returns a string representation of the object."""
         return self.name
 
 
@@ -61,6 +65,7 @@ class FilterCondition:
         self.value = value
 
     def __repr__(self):
+        """Returns a string representation of the object."""
         return f"FilterCondition(by={self.by.upper()}, where={self.where}, value={self.value})"
 
 
@@ -80,13 +85,13 @@ class BetSettings:
     def __init__(
         self,
         strategy: Strategy = None,
-        percentage: int = None,
-        percentage_gap: int = None,
-        max_points: int = None,
-        minimum_points: int = None,
-        stealth_mode: bool = None,
+        percentage: Optional[int] = None,
+        percentage_gap: Optional[int] = None,
+        max_points: Optional[int] = None,
+        minimum_points: Optional[int] = None,
+        stealth_mode: Optional[bool] = None,
         filter_condition: FilterCondition = None,
-        delay: float = None,
+        delay: Optional[float] = None,
         delay_mode: DelayMode = None,
     ):
         self.strategy = strategy
@@ -110,6 +115,7 @@ class BetSettings:
         self.delay_mode = self.delay_mode if self.delay_mode is not None else DelayMode.FROM_END
 
     def __repr__(self):
+        """Returns a string representation of the object."""
         return f"BetSettings(strategy={self.strategy}, percentage={self.percentage}, percentage_gap={self.percentage_gap}, max_points={self.max_points}, minimum_points={self.minimum_points}, stealth_mode={self.stealth_mode})"
 
 
@@ -169,6 +175,7 @@ class Bet:
         self.__clear_outcomes()
 
     def __repr__(self):
+        """Returns a string representation of the object."""
         return f"Bet(total_users={millify(self.total_users)}, total_points={millify(self.total_points)}), decision={self.decision})\n\t\tOutcome A({self.get_outcome(0)})\n\t\tOutcome B({self.get_outcome(1)})"
 
     def get_decision(self, parsed=False):

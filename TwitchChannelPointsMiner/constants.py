@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 # Twitch endpoints
 URL = "https://www.twitch.tv"
 IRC = "irc.chat.twitch.tv"
@@ -32,9 +34,9 @@ GITHUB_url = "https://raw.githubusercontent.com/rdavydov/Twitch-Channel-Points-M
 
 
 class GQLOperations:
-    url = "https://gql.twitch.tv/gql"
-    integrity_url = "https://gql.twitch.tv/integrity"
-    WithIsStreamLiveQuery = {
+    url: ClassVar[str] = "https://gql.twitch.tv/gql"
+    integrity_url: ClassVar[str] = "https://gql.twitch.tv/integrity"
+    WithIsStreamLiveQuery: ClassVar[dict[str, any]] = {
         "operationName": "WithIsStreamLiveQuery",
         "extensions": {
             "persistedQuery": {
@@ -43,7 +45,7 @@ class GQLOperations:
             }
         },
     }
-    VideoPlayerStreamInfoOverlayChannel = {
+    VideoPlayerStreamInfoOverlayChannel: ClassVar[dict[str, any]] = {
         "operationName": "VideoPlayerStreamInfoOverlayChannel",
         "extensions": {
             "persistedQuery": {
@@ -52,7 +54,7 @@ class GQLOperations:
             }
         },
     }
-    ClaimCommunityPoints = {
+    ClaimCommunityPoints: ClassVar[dict[str, any]] = {
         "operationName": "ClaimCommunityPoints",
         "extensions": {
             "persistedQuery": {
@@ -61,7 +63,7 @@ class GQLOperations:
             }
         },
     }
-    CommunityMomentCallout_Claim = {
+    CommunityMomentCallout_Claim: ClassVar[dict[str, any]] = {
         "operationName": "CommunityMomentCallout_Claim",
         "extensions": {
             "persistedQuery": {
@@ -70,7 +72,7 @@ class GQLOperations:
             }
         },
     }
-    DropsPage_ClaimDropRewards = {
+    DropsPage_ClaimDropRewards: ClassVar[dict[str, any]] = {
         "operationName": "DropsPage_ClaimDropRewards",
         "extensions": {
             "persistedQuery": {
@@ -79,7 +81,7 @@ class GQLOperations:
             }
         },
     }
-    ChannelPointsContext = {
+    ChannelPointsContext: ClassVar[dict[str, any]] = {
         "operationName": "ChannelPointsContext",
         "extensions": {
             "persistedQuery": {
@@ -88,7 +90,7 @@ class GQLOperations:
             }
         },
     }
-    JoinRaid = {
+    JoinRaid: ClassVar[dict[str, any]] = {
         "operationName": "JoinRaid",
         "extensions": {
             "persistedQuery": {
@@ -97,7 +99,7 @@ class GQLOperations:
             }
         },
     }
-    ModViewChannelQuery = {
+    ModViewChannelQuery: ClassVar[dict[str, any]] = {
         "operationName": "ModViewChannelQuery",
         "extensions": {
             "persistedQuery": {
@@ -106,7 +108,7 @@ class GQLOperations:
             }
         },
     }
-    Inventory = {
+    Inventory: ClassVar[dict[str, any]] = {
         "operationName": "Inventory",
         "variables": {"fetchRewardCampaigns": True},
         # "variables": {},
@@ -117,7 +119,7 @@ class GQLOperations:
             }
         },
     }
-    MakePrediction = {
+    MakePrediction: ClassVar[dict[str, any]] = {
         "operationName": "MakePrediction",
         "extensions": {
             "persistedQuery": {
@@ -126,7 +128,7 @@ class GQLOperations:
             }
         },
     }
-    ViewerDropsDashboard = {
+    ViewerDropsDashboard: ClassVar[dict[str, any]] = {
         "operationName": "ViewerDropsDashboard",
         # "variables": {},
         "variables": {"fetchRewardCampaigns": True},
@@ -137,7 +139,7 @@ class GQLOperations:
             }
         },
     }
-    DropCampaignDetails = {
+    DropCampaignDetails: ClassVar[dict[str, any]] = {
         "operationName": "DropCampaignDetails",
         "extensions": {
             "persistedQuery": {
@@ -146,7 +148,7 @@ class GQLOperations:
             }
         },
     }
-    DropsHighlightService_AvailableDrops = {
+    DropsHighlightService_AvailableDrops: ClassVar[dict[str, any]] = {
         "operationName": "DropsHighlightService_AvailableDrops",
         "extensions": {
             "persistedQuery": {
@@ -155,7 +157,9 @@ class GQLOperations:
             }
         },
     }
-    ReportMenuItem = {  # Use for replace https://api.twitch.tv/helix/users?login={self.username}
+    ReportMenuItem: ClassVar[
+        dict[str, any]
+    ] = {  # Use for replace https://api.twitch.tv/helix/users?login={self.username}
         "operationName": "ReportMenuItem",
         "extensions": {
             "persistedQuery": {
@@ -184,7 +188,7 @@ class GQLOperations:
             },
         },
     )
-    ChannelFollows = {
+    ChannelFollows: ClassVar[dict[str, any]] = {
         "operationName": "ChannelFollows",
         "variables": {"limit": 100, "order": "ASC"},
         "extensions": {

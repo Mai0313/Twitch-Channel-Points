@@ -10,6 +10,7 @@ class PubsubTopic:
         return self.streamer is None
 
     def __str__(self):
+        """Returns a string representation of the EventPrediction object."""
         if self.is_user_topic():
             return f"{self.topic}.{self.user_id}"
         else:

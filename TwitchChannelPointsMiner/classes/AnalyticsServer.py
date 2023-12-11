@@ -4,6 +4,7 @@ import os
 from datetime import datetime
 from pathlib import Path
 from threading import Thread
+from typing import Optional
 
 import pandas as pd
 from flask import Flask, Response, cli, render_template, request
@@ -225,9 +226,9 @@ class AnalyticsServer(Thread):
         port: int = 5000,
         refresh: int = 5,
         days_ago: int = 7,
-        username: str = None,
+        username: Optional[str] = None,
     ):
-        super(AnalyticsServer, self).__init__()
+        super().__init__()
 
         check_assets()
 

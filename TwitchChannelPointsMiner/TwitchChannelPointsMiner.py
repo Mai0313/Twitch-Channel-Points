@@ -10,6 +10,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
+from rich.console import Console
+
 from TwitchChannelPointsMiner.classes.Chat import ChatPresence, ThreadChat
 from TwitchChannelPointsMiner.classes.entities.PubsubTopic import PubsubTopic
 from TwitchChannelPointsMiner.classes.entities.Streamer import Streamer, StreamerSettings
@@ -43,6 +45,8 @@ logging.getLogger("seleniumwire").setLevel(logging.ERROR)
 logging.getLogger("websocket").setLevel(logging.ERROR)
 
 logger = logging.getLogger(__name__)
+
+console = Console()
 
 
 class TwitchChannelPointsMiner:
@@ -152,8 +156,8 @@ class TwitchChannelPointsMiner:
         # Check for the latest version of the script
         current_version, github_version = check_versions()
 
-        logger.info(f"Twitch Channel Points Miner v2-{current_version} (fork by rdavydov)")
-        logger.info("https://github.com/rdavydov/Twitch-Channel-Points-Miner-v2")
+        logger.info(f"Twitch Channel Points Miner v2-{current_version} (re-dev by Mai0313)")
+        logger.info("https://github.com/Mai0313/Twitch-Channel-Points")
 
         if github_version == "0.0.0":
             logger.error("Unable to detect if you have the latest version of this script")
@@ -388,7 +392,7 @@ class TwitchChannelPointsMiner:
         sys.exit(0)
 
     def __print_report(self):
-        print("\n")
+        console.log("\n")
         logger.info(f"Ending session: '{self.session_id}'", extra={"emoji": ":stop_sign:"})
         if self.logs_file is not None:
             logger.info(f"Logs file: {self.logs_file}", extra={"emoji": ":page_facing_up:"})
@@ -397,7 +401,7 @@ class TwitchChannelPointsMiner:
         )
 
         if self.events_predictions != {}:
-            print("")
+            console.log("")
             for event_id in self.events_predictions:
                 event = self.events_predictions[event_id]
                 if (
@@ -412,7 +416,7 @@ class TwitchChannelPointsMiner:
                         )
                     logger.info(f"{event.print_recap()}", extra={"emoji": ":bar_chart:"})
 
-        print("")
+        console.log("")
         for streamer_index in range(0, len(self.streamers)):
             if self.streamers[streamer_index].history != {}:
                 gained = (

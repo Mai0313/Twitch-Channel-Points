@@ -65,9 +65,11 @@ class Stream:
         logger.debug(f"Update: {self}")
 
     def __repr__(self):
+        """Returns a string representation of the EventPrediction object."""
         return f"Stream(title={self.title}, game={self.__str_game()}, tags={self.__str_tags()})"
 
     def __str__(self):
+        """Returns a string representation of the EventPrediction object."""
         return f"{self.title}" if Settings.logger.less else self.__repr__()
 
     def __str_tags(self):

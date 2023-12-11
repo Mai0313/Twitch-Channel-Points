@@ -68,9 +68,11 @@ class Drop:
         self.percentage_progress = updated_percentage
 
     def __repr__(self):
+        """Returns a string representation of the Drop object."""
         return f"Drop(id={self.id}, name={self.name}, benefit={self.benefit}, minutes_required={self.minutes_required}, has_preconditions_met={self.has_preconditions_met}, current_minutes_watched={self.current_minutes_watched}, percentage_progress={self.percentage_progress}%, drop_instance_id={self.drop_instance_id}, is_claimed={self.is_claimed})"
 
     def __str__(self):
+        """Returns a string representation of the Drop object."""
         return (
             f"{self.name} ({self.benefit}) {self.current_minutes_watched}/{self.minutes_required} ({self.percentage_progress}%)"
             if Settings.logger.less
@@ -85,6 +87,7 @@ class Drop:
         return f"|{('█' * progress)}{(' ' * remaining)}|\t{self.percentage_progress}% [{self.current_minutes_watched}/{self.minutes_required}]"
 
     def __eq__(self, other):
+        """Check if id remains the same."""
         if isinstance(other, self.__class__):
             return self.id == other.id
         else:

@@ -4,6 +4,7 @@ import os
 import time
 from datetime import datetime
 from threading import Lock
+from typing import Optional
 
 from TwitchChannelPointsMiner.classes.Chat import ChatPresence, ThreadChat
 from TwitchChannelPointsMiner.classes.entities.Bet import BetSettings, DelayMode
@@ -28,11 +29,11 @@ class StreamerSettings:
 
     def __init__(
         self,
-        make_predictions: bool = None,
-        follow_raid: bool = None,
-        claim_drops: bool = None,
-        claim_moments: bool = None,
-        watch_streak: bool = None,
+        make_predictions: Optional[bool] = None,
+        follow_raid: Optional[bool] = None,
+        claim_drops: Optional[bool] = None,
+        claim_moments: Optional[bool] = None,
+        watch_streak: Optional[bool] = None,
         bet: BetSettings = None,
         chat: ChatPresence = None,
     ):
@@ -60,6 +61,7 @@ class StreamerSettings:
             self.chat = ChatPresence.ONLINE
 
     def __repr__(self):
+        """Returns a string representation of the EventPrediction object."""
         return f"BetSettings(make_predictions={self.make_predictions}, follow_raid={self.follow_raid}, claim_drops={self.claim_drops}, claim_moments={self.claim_moments}, watch_streak={self.watch_streak}, bet={self.bet}, chat={self.chat})"
 
 
@@ -108,9 +110,11 @@ class Streamer:
         self.mutex = Lock()
 
     def __repr__(self):
+        """Returns a string representation of the EventPrediction object."""
         return f"Streamer(username={self.username}, channel_id={self.channel_id}, channel_points={_millify(self.channel_points)})"
 
     def __str__(self):
+        """Returns a string representation of the EventPrediction object."""
         return (
             f"{self.username} ({_millify(self.channel_points)} points)"
             if Settings.logger.less

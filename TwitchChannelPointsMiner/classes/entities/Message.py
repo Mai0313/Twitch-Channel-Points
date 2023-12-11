@@ -29,9 +29,11 @@ class Message:
         self.identifier = f"{self.type}.{self.topic}.{self.channel_id}"
 
     def __repr__(self):
+        """Returns a string representation of the EventPrediction object."""
         return f"{self.message}"
 
     def __str__(self):
+        """Returns a string representation of the EventPrediction object."""
         return f"{self.message}"
 
     def __get_timestamp(self):
