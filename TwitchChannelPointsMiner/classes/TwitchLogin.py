@@ -8,11 +8,11 @@ import copy
 import logging
 import os
 import pickle
+import webbrowser
 from datetime import datetime, timedelta, timezone
 from time import sleep
 
-# import webbrowser
-# import browser_cookie3
+import browser_cookie3
 import requests
 
 from TwitchChannelPointsMiner.classes.Exceptions import (
@@ -206,65 +206,7 @@ class TwitchLogin:
         return response
 
     def login_flow_backup(self, password=None):
-        """Backup OAuth Selenium login
-        from undetected_chromedriver import ChromeOptions
-        import seleniumwire.undetected_chromedriver.v2 as uc
-        from selenium.webdriver.common.by import By
-        from time import sleep
-
-        HEADLESS = False
-
-        options = uc.ChromeOptions()
-        if HEADLESS is True:
-            options.add_argument('--headless')
-        options.add_argument('--log-level=3')
-        options.add_argument('--disable-web-security')
-        options.add_argument('--allow-running-insecure-content')
-        options.add_argument('--lang=en')
-        options.add_argument('--no-sandbox')
-        options.add_argument('--disable-gpu')
-        # options.add_argument("--user-agent=\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36\"")
-        # options.add_argument("--window-size=1920,1080")
-        # options.set_capability("detach", True)
-
-        logger.info(
-            'Now a browser window will open, it will login with your data.')
-        driver = uc.Chrome(
-            options=options, use_subprocess=True  # , executable_path=EXECUTABLE_PATH
-        )
-        driver.request_interceptor = interceptor
-        driver.get('https://www.twitch.tv/login')
-
-        driver.find_element(By.ID, 'login-username').send_keys(self.username)
-        driver.find_element(By.ID, 'password-input').send_keys(password)
-        sleep(0.3)
-        driver.execute_script(
-            'document.querySelector("#root > div > div.scrollable-area > div.simplebar-scroll-content > div > div > div > div.Layout-sc-nxg1ff-0.gZaqky > form > div > div:nth-child(3) > button > div > div").click()'
-        )
-
-        logger.info(
-            'Enter your verification code in the browser and wait for the Twitch website to load, then press Enter here.'
-        )
-        input()
-
-        logger.info("Extracting cookies...")
-        self.cookies = driver.get_cookies()
-        # print(self.cookies)
-        # driver.close()
-        driver.quit()
-        self.username = self.get_cookie_value("login")
-        # print(f"self.username: {self.username}")
-
-        if not self.username:
-            logger.error("Couldn't extract login, probably bad cookies.")
-            return False
-
-        return self.get_cookie_value("auth-token")
-        """
-        # logger.error("Backup login flow is not available. Use a VPN or wait a while to avoid the CAPTCHA.")
-        # return False
-
-        """Backup OAuth login flow in case manual captcha solving is required"""
+        """Backup OAuth login flow in case manual captcha solving is required."""
         browser = input("What browser do you use? Chrome (1), Firefox (2), Other (3): ").strip()
         if browser not in ("1", "2"):
             logger.info("Your browser is unsupported, sorry.")
