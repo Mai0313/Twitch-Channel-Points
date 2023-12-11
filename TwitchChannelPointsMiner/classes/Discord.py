@@ -5,7 +5,7 @@ import requests
 from TwitchChannelPointsMiner.classes.Settings import Events
 
 
-class Discord(object):
+class Discord:
     __slots__ = ["webhook_api", "events"]
 
     def __init__(self, webhook_api: str, events: list):

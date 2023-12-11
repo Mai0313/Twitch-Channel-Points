@@ -3,24 +3,23 @@
 # The MIT License (MIT)
 
 import copy
+
 # import getpass
 import logging
 import os
 import pickle
+from datetime import datetime, timedelta, timezone
+from time import sleep
 
 # import webbrowser
 # import browser_cookie3
-
 import requests
 
 from TwitchChannelPointsMiner.classes.Exceptions import (
     BadCredentialsException,
     WrongCookiesException,
 )
-from TwitchChannelPointsMiner.constants import CLIENT_ID, GQLOperations, USER_AGENTS
-
-from datetime import datetime, timedelta, timezone
-from time import sleep
+from TwitchChannelPointsMiner.constants import CLIENT_ID, USER_AGENTS, GQLOperations
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +37,7 @@ logger = logging.getLogger(__name__)
         request.headers['Content-Length'] = str(len(request.body))"""
 
 
-class TwitchLogin(object):
+class TwitchLogin:
     __slots__ = [
         "client_id",
         "device_id",
@@ -51,7 +50,7 @@ class TwitchLogin(object):
         "user_id",
         "email",
         "cookies",
-        "shared_cookies"
+        "shared_cookies",
     ]
 
     def __init__(self, client_id, device_id, username, user_agent, password=None):
@@ -61,8 +60,7 @@ class TwitchLogin(object):
         self.login_check_result = False
         self.session = requests.session()
         self.session.headers.update(
-            {"Client-ID": self.client_id,
-                "X-Device-Id": self.device_id, "User-Agent": user_agent}
+            {"Client-ID": self.client_id, "X-Device-Id": self.device_id, "User-Agent": user_agent}
         )
         self.username = username
         self.password = password
@@ -80,7 +78,7 @@ class TwitchLogin(object):
             "scopes": (
                 "channel_read chat:read user_blocks_edit "
                 "user_blocks_read user_follows_edit user_read"
-            )
+            ),
         }
         # login-fix
         use_backup_flow = False
@@ -89,7 +87,8 @@ class TwitchLogin(object):
             logger.info("Trying the TV login method..")
 
             login_response = self.send_oauth_request(
-                "https://id.twitch.tv/oauth2/device", post_data)
+                "https://id.twitch.tv/oauth2/device", post_data
+            )
 
             # {
             #     "device_code": "40 chars [A-Za-z0-9]",
@@ -110,14 +109,9 @@ class TwitchLogin(object):
                 now = datetime.now(timezone.utc)
                 device_code: str = login_response_json["device_code"]
                 interval: int = login_response_json["interval"]
-                expires_at = now + \
-                    timedelta(seconds=login_response_json["expires_in"])
-                logger.info(
-                    "Open https://www.twitch.tv/activate"
-                )
-                logger.info(
-                    f"and enter this code: {user_code}"
-                )
+                expires_at = now + timedelta(seconds=login_response_json["expires_in"])
+                logger.info("Open https://www.twitch.tv/activate")
+                logger.info(f"and enter this code: {user_code}")
                 logger.info(
                     f"Hurry up! It will expire in {int(login_response_json['expires_in'] / 60)} minutes!"
                 )
@@ -134,7 +128,8 @@ class TwitchLogin(object):
                     # sleep first, not like the user is gonna enter the code *that* fast
                     sleep(interval)
                     login_response = self.send_oauth_request(
-                        "https://id.twitch.tv/oauth2/token", post_data)
+                        "https://id.twitch.tv/oauth2/token", post_data
+                    )
                     if now == expires_at:
                         logger.error("Code expired. Try again")
                         break
@@ -151,22 +146,20 @@ class TwitchLogin(object):
                     if "access_token" in login_response_json:
                         self.set_token(login_response_json["access_token"])
                         return self.check_login()
-            # except RequestInvalid:
-                # the device_code has expired, request a new code
-                # continue
-                # invalidate_after is not None
-                # account for the expiration landing during the request
-                # and datetime.now(timezone.utc) >= (invalidate_after - session_timeout)
-            # ):
-                # raise RequestInvalid()
+                    # except RequestInvalid:
+                    # the device_code has expired, request a new code
+                    # continue
+                    # invalidate_after is not None
+                    # account for the expiration landing during the request
+                    # and datetime.now(timezone.utc) >= (invalidate_after - session_timeout)
+                    # ):
+                    # raise RequestInvalid()
                     else:
                         if "error_code" in login_response:
                             err_code = login_response["error_code"]
 
                         logger.error(f"Unknown error: {login_response}")
-                        raise NotImplementedError(
-                            f"Unknown TwitchAPI error code: {err_code}"
-                        )
+                        raise NotImplementedError(f"Unknown TwitchAPI error code: {err_code}")
 
             if use_backup_flow:
                 break
@@ -185,26 +178,31 @@ class TwitchLogin(object):
     # def send_login_request(self, json_data):
     def send_oauth_request(self, url, json_data):
         # response = self.session.post("https://passport.twitch.tv/protected_login", json=json_data)
-        """response = self.session.post("https://passport.twitch.tv/login", json=json_data, headers={
-            'Accept': 'application/vnd.twitchtv.v3+json',
-            'Accept-Encoding': 'gzip',
-            'Accept-Language': 'en-US',
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Host': 'passport.twitch.tv'
-        },)"""
-        response = self.session.post(url, data=json_data, headers={
-            'Accept': 'application/json',
-            'Accept-Encoding': 'gzip',
-            'Accept-Language': 'en-US',
-            "Cache-Control": "no-cache",
-            "Client-Id": CLIENT_ID,
-            "Host": "id.twitch.tv",
-            "Origin": "https://android.tv.twitch.tv",
-            "Pragma": "no-cache",
-            "Referer": "https://android.tv.twitch.tv/",
-            "User-Agent": USER_AGENTS["Android"]["TV"],
-            "X-Device-Id": self.device_id
+        """Response = self.session.post("https://passport.twitch.tv/login", json=json_data, headers={
+        'Accept': 'application/vnd.twitchtv.v3+json',
+        'Accept-Encoding': 'gzip',
+        'Accept-Language': 'en-US',
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Host': 'passport.twitch.tv'
         },)
+        """
+        response = self.session.post(
+            url,
+            data=json_data,
+            headers={
+                "Accept": "application/json",
+                "Accept-Encoding": "gzip",
+                "Accept-Language": "en-US",
+                "Cache-Control": "no-cache",
+                "Client-Id": CLIENT_ID,
+                "Host": "id.twitch.tv",
+                "Origin": "https://android.tv.twitch.tv",
+                "Pragma": "no-cache",
+                "Referer": "https://android.tv.twitch.tv/",
+                "User-Agent": USER_AGENTS["Android"]["TV"],
+                "X-Device-Id": self.device_id,
+            },
+        )
         return response
 
     def login_flow_backup(self, password=None):
@@ -261,22 +259,18 @@ class TwitchLogin(object):
             logger.error("Couldn't extract login, probably bad cookies.")
             return False
 
-        return self.get_cookie_value("auth-token")"""
-
+        return self.get_cookie_value("auth-token")
+        """
         # logger.error("Backup login flow is not available. Use a VPN or wait a while to avoid the CAPTCHA.")
         # return False
 
         """Backup OAuth login flow in case manual captcha solving is required"""
-        browser = input(
-            "What browser do you use? Chrome (1), Firefox (2), Other (3): "
-        ).strip()
+        browser = input("What browser do you use? Chrome (1), Firefox (2), Other (3): ").strip()
         if browser not in ("1", "2"):
             logger.info("Your browser is unsupported, sorry.")
             return None
 
-        input(
-            "Please login inside your browser of choice (NOT incognito mode) and press Enter..."
-        )
+        input("Please login inside your browser of choice (NOT incognito mode) and press Enter...")
         logger.info("Loading cookies saved on your computer...")
         twitch_domain = ".twitch.tv"
         if browser == "1":  # chrome
@@ -331,10 +325,7 @@ class TwitchLogin(object):
 
     def get_user_id(self):
         persistent = self.get_cookie_value("persistent")
-        user_id = (
-            int(persistent.split("%")[
-                0]) if persistent is not None else self.user_id
-        )
+        user_id = int(persistent.split("%")[0]) if persistent is not None else self.user_id
         if user_id is None:
             if self.__set_user_id() is True:
                 return self.user_id

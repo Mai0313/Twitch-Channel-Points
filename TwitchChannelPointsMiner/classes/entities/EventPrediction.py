@@ -4,7 +4,7 @@ from TwitchChannelPointsMiner.classes.Settings import Settings
 from TwitchChannelPointsMiner.utils import _millify, float_round
 
 
-class EventPrediction(object):
+class EventPrediction:
     __slots__ = [
         "streamer",
         "event_id",
@@ -66,17 +66,11 @@ class EventPrediction(object):
         result_type = result["type"]
 
         points = {}
-        points["placed"] = (
-            self.bet.decision["amount"] if result_type != "REFUND" else 0
-        )
+        points["placed"] = self.bet.decision["amount"] if result_type != "REFUND" else 0
         points["won"] = (
-            result["points_won"]
-            if result["points_won"] or result_type == "REFUND"
-            else 0
+            result["points_won"] if result["points_won"] or result_type == "REFUND" else 0
         )
-        points["gained"] = (
-            points["won"] - points["placed"] if result_type != "REFUND" else 0
-        )
+        points["gained"] = points["won"] - points["placed"] if result_type != "REFUND" else 0
         points["prefix"] = "+" if points["gained"] >= 0 else ""
 
         action = (

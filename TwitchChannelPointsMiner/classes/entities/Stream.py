@@ -9,7 +9,7 @@ from TwitchChannelPointsMiner.constants import DROP_ID
 logger = logging.getLogger(__name__)
 
 
-class Stream(object):
+class Stream:
     __slots__ = [
         "broadcast_id",
         "title",
@@ -59,9 +59,7 @@ class Stream(object):
         # ------------------------
         self.viewers_count = viewers_count
 
-        self.drops_tags = (
-            DROP_ID in [tag["id"] for tag in self.tags] and self.game != {}
-        )
+        self.drops_tags = DROP_ID in [tag["id"] for tag in self.tags] and self.game != {}
         self.__last_update = time.time()
 
         logger.debug(f"Update: {self}")
@@ -73,18 +71,14 @@ class Stream(object):
         return f"{self.title}" if Settings.logger.less else self.__repr__()
 
     def __str_tags(self):
-        return (
-            None
-            if self.tags == []
-            else ", ".join([tag["localizedName"] for tag in self.tags])
-        )
+        return None if self.tags == [] else ", ".join([tag["localizedName"] for tag in self.tags])
 
     def __str_game(self):
         return None if self.game in [{}, None] else self.game["displayName"]
 
     def game_name(self):
         return None if self.game in [{}, None] else self.game["name"]
-    
+
     def game_id(self):
         return None if self.game in [{}, None] else self.game["id"]
 
@@ -101,7 +95,5 @@ class Stream(object):
 
     def update_minute_watched(self):
         if self.__minute_watched_timestamp != 0:
-            self.minute_watched += round(
-                (time.time() - self.__minute_watched_timestamp) / 60, 5
-            )
+            self.minute_watched += round((time.time() - self.__minute_watched_timestamp) / 60, 5)
         self.__minute_watched_timestamp = time.time()

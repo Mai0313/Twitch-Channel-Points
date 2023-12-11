@@ -3,7 +3,7 @@ import json
 from TwitchChannelPointsMiner.utils import server_time
 
 
-class Message(object):
+class Message:
     __slots__ = [
         "topic",
         "topic_user",
@@ -38,11 +38,7 @@ class Message(object):
         return (
             server_time(self.message)
             if self.data is None
-            else (
-                self.data["timestamp"]
-                if "timestamp" in self.data
-                else server_time(self.data)
-            )
+            else (self.data["timestamp"] if "timestamp" in self.data else server_time(self.data))
         )
 
     def __get_channel_id(self):

@@ -28,12 +28,10 @@ def aggregate(df, freq="30Min"):
     df_base_events = df[(df.z == "Watch") | (df.z == "Claim")]
     df_other_events = df[(df.z != "Watch") & (df.z != "Claim")]
 
-    be = df_base_events.groupby(
-        [pd.Grouper(freq=freq, key="datetime"), "z"]).max()
+    be = df_base_events.groupby([pd.Grouper(freq=freq, key="datetime"), "z"]).max()
     be = be.reset_index()
 
-    oe = df_other_events.groupby(
-        [pd.Grouper(freq=freq, key="datetime"), "z"]).max()
+    oe = df_other_events.groupby([pd.Grouper(freq=freq, key="datetime"), "z"]).max()
     oe = oe.reset_index()
 
     result = pd.concat([be, oe])
@@ -48,9 +46,7 @@ def filter_datas(start_date, end_date, datas):
         else 0
     )
     end_date = (
-        datetime.strptime(end_date, "%Y-%m-%d")
-        if end_date is not None
-        else datetime.now()
+        datetime.strptime(end_date, "%Y-%m-%d") if end_date is not None else datetime.now()
     ).replace(hour=23, minute=59, second=59).timestamp() * 1000
 
     original_series = datas["series"]
@@ -79,11 +75,16 @@ def filter_datas(start_date, end_date, datas):
 
         # Attempt to get the last known balance from before the provided timeframe
         df = df[(df.x >= new_start_date) & (df.x <= new_end_date)]
-        last_balance = df.drop(columns="datetime").sort_values(
-            by=["x", "y"], ascending=True).to_dict("records")[-1]['y']
+        last_balance = (
+            df.drop(columns="datetime")
+            .sort_values(by=["x", "y"], ascending=True)
+            .to_dict("records")[-1]["y"]
+        )
 
-        datas["series"] = [{'x': start_date, 'y': last_balance, 'z': 'No Stream'}, {
-            'x': end_date, 'y': last_balance, 'z': 'No Stream'}]
+        datas["series"] = [
+            {"x": start_date, "y": last_balance, "z": "No Stream"},
+            {"x": end_date, "y": last_balance, "z": "No Stream"},
+        ]
 
     if "annotations" in datas:
         df = pd.DataFrame(datas["annotations"])
@@ -92,9 +93,7 @@ def filter_datas(start_date, end_date, datas):
         df = df[(df.x >= start_date) & (df.x <= end_date)]
 
         datas["annotations"] = (
-            df.drop(columns="datetime")
-            .sort_values(by="x", ascending=True)
-            .to_dict("records")
+            df.drop(columns="datetime").sort_values(by="x", ascending=True).to_dict("records")
         )
     else:
         datas["annotations"] = []
@@ -114,18 +113,22 @@ def read_json(streamer, return_response=True):
         error_message = f"File '{streamer}' not found."
         logger.error(error_message)
         if return_response:
-            return Response(json.dumps({"error": error_message}), status=404, mimetype="application/json")
+            return Response(
+                json.dumps({"error": error_message}), status=404, mimetype="application/json"
+            )
         else:
             return {"error": error_message}
 
     try:
-        with open(os.path.join(path, streamer), 'r') as file:
+        with open(os.path.join(path, streamer)) as file:
             data = json.load(file)
     except json.JSONDecodeError as e:
-        error_message = f"Error decoding JSON in file '{streamer}': {str(e)}"
+        error_message = f"Error decoding JSON in file '{streamer}': {e!s}"
         logger.error(error_message)
         if return_response:
-            return Response(json.dumps({"error": error_message}), status=500, mimetype="application/json")
+            return Response(
+                json.dumps({"error": error_message}), status=500, mimetype="application/json"
+            )
         else:
             return {"error": error_message}
 
@@ -168,19 +171,18 @@ def json_all():
 
 
 def index(refresh=5, days_ago=7):
-    return render_template(
-        "charts.html",
-        refresh=(refresh * 60 * 1000),
-        daysAgo=days_ago,
-    )
+    return render_template("charts.html", refresh=(refresh * 60 * 1000), daysAgo=days_ago)
 
 
 def streamers():
     return Response(
         json.dumps(
             [
-                {"name": s, "points": get_challenge_points(
-                    s), "last_activity": get_last_activity(s)}
+                {
+                    "name": s,
+                    "points": get_challenge_points(s),
+                    "last_activity": get_last_activity(s),
+                }
                 for s in sorted(streamers_available())
             ]
         ),
@@ -195,22 +197,12 @@ def download_assets(assets_folder, required_files):
 
     for f in required_files:
         if os.path.isfile(os.path.join(assets_folder, f)) is False:
-            if (
-                download_file(os.path.join("assets", f),
-                              os.path.join(assets_folder, f))
-                is True
-            ):
+            if download_file(os.path.join("assets", f), os.path.join(assets_folder, f)) is True:
                 logger.info(f"Downloaded {f}")
 
 
 def check_assets():
-    required_files = [
-        "banner.png",
-        "charts.html",
-        "script.js",
-        "style.css",
-        "dark-theme.css",
-    ]
+    required_files = ["banner.png", "charts.html", "script.js", "style.css", "dark-theme.css"]
     assets_folder = os.path.join(Path().absolute(), "assets")
     if os.path.isdir(assets_folder) is False:
         logger.info(f"Assets folder not found at {assets_folder}")
@@ -222,7 +214,9 @@ def check_assets():
                 download_assets(assets_folder, required_files)
                 break
 
+
 last_sent_log_index = 0
+
 
 class AnalyticsServer(Thread):
     def __init__(
@@ -231,7 +225,7 @@ class AnalyticsServer(Thread):
         port: int = 5000,
         refresh: int = 5,
         days_ago: int = 7,
-        username: str = None
+        username: str = None,
     ):
         super(AnalyticsServer, self).__init__()
 
@@ -252,7 +246,7 @@ class AnalyticsServer(Thread):
             logs_path = os.path.join(Path().absolute(), "logs")
             log_file_path = os.path.join(logs_path, f"{username}.log")
             try:
-                with open(log_file_path, "r") as log_file:
+                with open(log_file_path) as log_file:
                     log_content = log_file.read()
 
                 # Extract new log entries since the last received index
@@ -276,20 +270,14 @@ class AnalyticsServer(Thread):
             defaults={"refresh": refresh, "days_ago": days_ago},
             methods=["GET"],
         )
-        self.app.add_url_rule("/streamers", "streamers",
-                              streamers, methods=["GET"])
-        self.app.add_url_rule(
-            "/json/<string:streamer>", "json", read_json, methods=["GET"]
-        )
-        self.app.add_url_rule("/json_all", "json_all",
-                              json_all, methods=["GET"])
-        self.app.add_url_rule(
-            "/log", "log", generate_log, methods=["GET"])
+        self.app.add_url_rule("/streamers", "streamers", streamers, methods=["GET"])
+        self.app.add_url_rule("/json/<string:streamer>", "json", read_json, methods=["GET"])
+        self.app.add_url_rule("/json_all", "json_all", json_all, methods=["GET"])
+        self.app.add_url_rule("/log", "log", generate_log, methods=["GET"])
 
     def run(self):
         logger.info(
             f"Analytics running on http://{self.host}:{self.port}/",
             extra={"emoji": ":globe_with_meridians:"},
         )
-        self.app.run(host=self.host, port=self.port,
-                     threaded=True, debug=False)
+        self.app.run(host=self.host, port=self.port, threaded=True, debug=False)

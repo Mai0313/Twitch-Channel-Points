@@ -2,10 +2,11 @@ import json
 import logging
 import random
 import time
+
 # import os
 from threading import Thread, Timer
-# from pathlib import Path
 
+# from pathlib import Path
 from dateutil import parser
 
 from TwitchChannelPointsMiner.classes.entities.EventPrediction import EventPrediction
@@ -14,10 +15,7 @@ from TwitchChannelPointsMiner.classes.entities.Raid import Raid
 from TwitchChannelPointsMiner.classes.Settings import Events, Settings
 from TwitchChannelPointsMiner.classes.TwitchWebSocket import TwitchWebSocket
 from TwitchChannelPointsMiner.constants import WEBSOCKET
-from TwitchChannelPointsMiner.utils import (
-    get_streamer_index,
-    internet_connection_available,
-)
+from TwitchChannelPointsMiner.utils import get_streamer_index, internet_connection_available
 
 logger = logging.getLogger(__name__)
 
@@ -64,7 +62,7 @@ class WebSocketsPool:
             on_message=WebSocketsPool.on_message,
             on_open=WebSocketsPool.on_open,
             on_error=WebSocketsPool.on_error,
-            on_close=WebSocketsPool.on_close
+            on_close=WebSocketsPool.on_close,
             # on_close=WebSocketsPool.handle_reconnection, # Do nothing.
         )
 
@@ -73,9 +71,7 @@ class WebSocketsPool:
             import ssl
 
             thread_ws = Thread(
-                target=lambda: self.ws[index].run_forever(
-                    sslopt={"cert_reqs": ssl.CERT_NONE}
-                )
+                target=lambda: self.ws[index].run_forever(sslopt={"cert_reqs": ssl.CERT_NONE})
             )
             logger.warn("SSL certificate verification is disabled! Be aware!")
         else:
@@ -141,9 +137,7 @@ class WebSocketsPool:
             ws.is_reconnecting = True
 
             if ws.forced_close is False:
-                logger.info(
-                    f"#{ws.index} - Reconnecting to Twitch PubSub server in ~60 seconds"
-                )
+                logger.info(f"#{ws.index} - Reconnecting to Twitch PubSub server in ~60 seconds")
                 time.sleep(30)
 
                 while internet_connection_available() is False:
@@ -212,9 +206,7 @@ class WebSocketsPool:
                                     "event": Events.get(f"GAIN_FOR_{reason_code}"),
                                 },
                             )
-                            ws.streamers[streamer_index].update_history(
-                                reason_code, earned
-                            )
+                            ws.streamers[streamer_index].update_history(reason_code, earned)
                             # Analytics switch
                             if Settings.enable_analytics is True:
                                 ws.streamers[streamer_index].persistent_annotations(
@@ -222,8 +214,7 @@ class WebSocketsPool:
                                 )
                         elif message.type == "claim-available":
                             ws.twitch.claim_bonus(
-                                ws.streamers[streamer_index],
-                                message.data["claim"]["id"],
+                                ws.streamers[streamer_index], message.data["claim"]["id"]
                             )
 
                     elif message.topic == "video-playback-by-id":
@@ -235,9 +226,7 @@ class WebSocketsPool:
                                 ws.streamers[streamer_index].set_offline()
                         elif message.type == "viewcount":
                             if ws.streamers[streamer_index].stream_up_elapsed():
-                                ws.twitch.check_streamer_online(
-                                    ws.streamers[streamer_index]
-                                )
+                                ws.twitch.check_streamer_online(ws.streamers[streamer_index])
 
                     elif message.topic == "raid":
                         if message.type == "raid_update_v2":
@@ -254,7 +243,6 @@ class WebSocketsPool:
                             )
 
                     elif message.topic == "predictions-channel-v1":
-
                         event_dict = message.data["event"]
                         event_id = event_dict["id"]
                         event_status = event_dict["status"]
@@ -290,13 +278,10 @@ class WebSocketsPool:
                                     bet_settings = streamer.settings.bet
                                     if (
                                         bet_settings.minimum_points is None
-                                        or streamer.channel_points
-                                        > bet_settings.minimum_points
+                                        or streamer.channel_points > bet_settings.minimum_points
                                     ):
                                         ws.events_predictions[event_id] = event
-                                        start_after = event.closing_bet_after(
-                                            current_tmsp
-                                        )
+                                        start_after = event.closing_bet_after(current_tmsp)
 
                                         place_bet_thread = Timer(
                                             start_after,
@@ -322,10 +307,7 @@ class WebSocketsPool:
                                             },
                                         )
 
-                        elif (
-                            message.type == "event-updated"
-                            and event_id in ws.events_predictions
-                        ):
+                        elif message.type == "event-updated" and event_id in ws.events_predictions:
                             ws.events_predictions[event_id].status = event_status
                             # Game over we can't update anymore the values... The bet was placed!
                             if (
@@ -371,23 +353,17 @@ class WebSocketsPool:
                                 # Remove duplicate history records from previous message sent in community-points-user-v1
                                 if event_prediction.result["type"] == "REFUND":
                                     ws.streamers[streamer_index].update_history(
-                                        "REFUND",
-                                        -points["placed"],
-                                        counter=-1,
+                                        "REFUND", -points["placed"], counter=-1
                                     )
                                 elif event_prediction.result["type"] == "WIN":
                                     ws.streamers[streamer_index].update_history(
-                                        "PREDICTION",
-                                        -points["won"],
-                                        counter=-1,
+                                        "PREDICTION", -points["won"], counter=-1
                                     )
 
                                 if event_prediction.result["type"]:
                                     # Analytics switch
                                     if Settings.enable_analytics is True:
-                                        ws.streamers[
-                                            streamer_index
-                                        ].persistent_annotations(
+                                        ws.streamers[streamer_index].persistent_annotations(
                                             event_prediction.result["type"],
                                             f"{ws.events_predictions[event_id].title}",
                                         )
@@ -409,12 +385,14 @@ class WebSocketsPool:
             # raise RuntimeError(f"Error while trying to listen for a topic: {response}")
             error_message = response.get("error", "")
             logger.error(f"Error while trying to listen for a topic: {error_message}")
-            
+
             # Check if the error message indicates an authentication issue (ERR_BADAUTH)
             if "ERR_BADAUTH" in error_message:
                 # Inform the user about the potential outdated cookie file
                 username = ws.twitch.twitch_login.username
-                logger.error(f"Received the ERR_BADAUTH error, most likely you have an outdated cookie file \"cookies\\{username}.pkl\". Delete this file and try again.")
+                logger.error(
+                    f'Received the ERR_BADAUTH error, most likely you have an outdated cookie file "cookies\\{username}.pkl". Delete this file and try again.'
+                )
                 # Attempt to delete the outdated cookie file
                 # try:
                 #     cookie_file_path = os.path.join("cookies", f"{username}.pkl")

@@ -4,7 +4,7 @@ from random import uniform
 
 from millify import millify
 
-#from TwitchChannelPointsMiner.utils import char_decision_as_index, float_round
+# from TwitchChannelPointsMiner.utils import char_decision_as_index, float_round
 from TwitchChannelPointsMiner.utils import float_round
 
 
@@ -29,7 +29,7 @@ class Condition(Enum):
         return self.name
 
 
-class OutcomeKeys(object):
+class OutcomeKeys:
     # Real key on Bet dict ['']
     PERCENTAGE_USERS = "percentage_users"
     ODDS_PERCENTAGE = "odds_percentage"
@@ -52,12 +52,8 @@ class DelayMode(Enum):
         return self.name
 
 
-class FilterCondition(object):
-    __slots__ = [
-        "by",
-        "where",
-        "value",
-    ]
+class FilterCondition:
+    __slots__ = ["by", "where", "value"]
 
     def __init__(self, by=None, where=None, value=None, decision=None):
         self.by = by
@@ -68,7 +64,7 @@ class FilterCondition(object):
         return f"FilterCondition(by={self.by.upper()}, where={self.where}, value={self.value})"
 
 
-class BetSettings(object):
+class BetSettings:
     __slots__ = [
         "strategy",
         "percentage",
@@ -106,26 +102,18 @@ class BetSettings(object):
     def default(self):
         self.strategy = self.strategy if self.strategy is not None else Strategy.SMART
         self.percentage = self.percentage if self.percentage is not None else 5
-        self.percentage_gap = (
-            self.percentage_gap if self.percentage_gap is not None else 20
-        )
+        self.percentage_gap = self.percentage_gap if self.percentage_gap is not None else 20
         self.max_points = self.max_points if self.max_points is not None else 50000
-        self.minimum_points = (
-            self.minimum_points if self.minimum_points is not None else 0
-        )
-        self.stealth_mode = (
-            self.stealth_mode if self.stealth_mode is not None else False
-        )
+        self.minimum_points = self.minimum_points if self.minimum_points is not None else 0
+        self.stealth_mode = self.stealth_mode if self.stealth_mode is not None else False
         self.delay = self.delay if self.delay is not None else 6
-        self.delay_mode = (
-            self.delay_mode if self.delay_mode is not None else DelayMode.FROM_END
-        )
+        self.delay_mode = self.delay_mode if self.delay_mode is not None else DelayMode.FROM_END
 
     def __repr__(self):
         return f"BetSettings(strategy={self.strategy}, percentage={self.percentage}, percentage_gap={self.percentage_gap}, max_points={self.max_points}, minimum_points={self.minimum_points}, stealth_mode={self.stealth_mode})"
 
 
-class Bet(object):
+class Bet:
     __slots__ = ["outcomes", "decision", "total_users", "total_points", "settings"]
 
     def __init__(self, outcomes: list, settings: BetSettings):
@@ -147,9 +135,7 @@ class Bet(object):
             if outcomes[index]["top_predictors"] != []:
                 # Sort by points placed by other users
                 outcomes[index]["top_predictors"] = sorted(
-                    outcomes[index]["top_predictors"],
-                    key=lambda x: x["points"],
-                    reverse=True,
+                    outcomes[index]["top_predictors"], key=lambda x: x["points"], reverse=True
                 )
                 # Get the first elements (most placed)
                 top_points = outcomes[index]["top_predictors"][0]["points"]
@@ -162,22 +148,19 @@ class Bet(object):
             self.total_users += self.outcomes[index][OutcomeKeys.TOTAL_USERS]
             self.total_points += self.outcomes[index][OutcomeKeys.TOTAL_POINTS]
 
-        if (
-            self.total_users > 0
-            and self.total_points > 0
-        ):
+        if self.total_users > 0 and self.total_points > 0:
             for index in range(0, len(self.outcomes)):
                 self.outcomes[index][OutcomeKeys.PERCENTAGE_USERS] = float_round(
                     (100 * self.outcomes[index][OutcomeKeys.TOTAL_USERS]) / self.total_users
                 )
                 self.outcomes[index][OutcomeKeys.ODDS] = float_round(
-                    #self.total_points / max(self.outcomes[index][OutcomeKeys.TOTAL_POINTS], 1)
+                    # self.total_points / max(self.outcomes[index][OutcomeKeys.TOTAL_POINTS], 1)
                     0
                     if self.outcomes[index][OutcomeKeys.TOTAL_POINTS] == 0
                     else self.total_points / self.outcomes[index][OutcomeKeys.TOTAL_POINTS]
                 )
                 self.outcomes[index][OutcomeKeys.ODDS_PERCENTAGE] = float_round(
-                    #100 / max(self.outcomes[index][OutcomeKeys.ODDS], 1)
+                    # 100 / max(self.outcomes[index][OutcomeKeys.ODDS], 1)
                     0
                     if self.outcomes[index][OutcomeKeys.ODDS] == 0
                     else 100 / self.outcomes[index][OutcomeKeys.ODDS]
@@ -189,7 +172,7 @@ class Bet(object):
         return f"Bet(total_users={millify(self.total_users)}, total_points={millify(self.total_points)}), decision={self.decision})\n\t\tOutcome A({self.get_outcome(0)})\n\t\tOutcome B({self.get_outcome(1)})"
 
     def get_decision(self, parsed=False):
-        #decision = self.outcomes[0 if self.decision["choice"] == "A" else 1]
+        # decision = self.outcomes[0 if self.decision["choice"] == "A" else 1]
         decision = self.outcomes[self.decision["choice"]]
         return decision if parsed is False else Bet.__parse_outcome(decision)
 
@@ -229,7 +212,7 @@ class Bet(object):
         return "A" if self.outcomes[0][key] > self.outcomes[1][key] else "B"'''
 
     def __return_choice(self, key) -> int:
-        largest=0
+        largest = 0
         for index in range(0, len(self.outcomes)):
             if self.outcomes[index][key] > self.outcomes[largest][key]:
                 largest = index
@@ -248,11 +231,9 @@ class Bet(object):
                 else key.replace("decision", "total")
             )
             if key in [OutcomeKeys.TOTAL_USERS, OutcomeKeys.TOTAL_POINTS]:
-                compared_value = (
-                    self.outcomes[0][fixed_key] + self.outcomes[1][fixed_key]
-                )
+                compared_value = self.outcomes[0][fixed_key] + self.outcomes[1][fixed_key]
             else:
-                #outcome_index = char_decision_as_index(self.decision["choice"])
+                # outcome_index = char_decision_as_index(self.decision["choice"])
                 outcome_index = self.decision["choice"]
                 compared_value = self.outcomes[outcome_index][fixed_key]
 
@@ -295,17 +276,15 @@ class Bet(object):
             )
 
         if self.decision["choice"] is not None:
-            #index = char_decision_as_index(self.decision["choice"])
+            # index = char_decision_as_index(self.decision["choice"])
             index = self.decision["choice"]
             self.decision["id"] = self.outcomes[index]["id"]
             self.decision["amount"] = min(
-                int(balance * (self.settings.percentage / 100)),
-                self.settings.max_points,
+                int(balance * (self.settings.percentage / 100)), self.settings.max_points
             )
             if (
                 self.settings.stealth_mode is True
-                and self.decision["amount"]
-                >= self.outcomes[index][OutcomeKeys.TOP_POINTS]
+                and self.decision["amount"] >= self.outcomes[index][OutcomeKeys.TOP_POINTS]
             ):
                 reduce_amount = uniform(1, 5)
                 self.decision["amount"] = (

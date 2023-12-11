@@ -2,25 +2,25 @@ import logging
 import os
 import platform
 import queue
-import pytz
 import sys
 from datetime import datetime
 from logging.handlers import QueueHandler, QueueListener, TimedRotatingFileHandler
 from pathlib import Path
 
 import emoji
+import pytz
 from colorama import Fore, init
 
 from TwitchChannelPointsMiner.classes.Discord import Discord
 from TwitchChannelPointsMiner.classes.Matrix import Matrix
+from TwitchChannelPointsMiner.classes.Pushover import Pushover
 from TwitchChannelPointsMiner.classes.Settings import Events
 from TwitchChannelPointsMiner.classes.Telegram import Telegram
-from TwitchChannelPointsMiner.classes.Pushover import Pushover
 from TwitchChannelPointsMiner.utils import remove_emoji
 
 
 # Fore: BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET.
-class ColorPalette(object):
+class ColorPalette:
     def __init__(self, **kwargs):
         # Init with default values RESET for all and GREEN and RED only for WIN and LOSE bet
         # Then set args from kwargs
@@ -77,7 +77,7 @@ class LoggerSettings:
         "discord",
         "matrix",
         "pushover",
-        "username"
+        "username",
     ]
 
     def __init__(
@@ -96,7 +96,7 @@ class LoggerSettings:
         discord: Discord or None = None,
         matrix: Matrix or None = None,
         pushover: Pushover or None = None,
-        username: str or None = None
+        username: str or None = None,
     ):
         self.save = save
         self.less = less
@@ -124,8 +124,7 @@ class FileFormatter(logging.Formatter):
                 self.timezone = pytz.timezone(settings.time_zone)
                 logging.info(f"File logger time zone set to: {self.timezone}")
             except pytz.UnknownTimeZoneError:
-                logging.error(
-                    f"File logger: invalid time zone: {settings.time_zone}")
+                logging.error(f"File logger: invalid time zone: {settings.time_zone}")
         logging.Formatter.__init__(self, fmt=fmt, datefmt=datefmt)
 
     def formatTime(self, record, datefmt=None):
@@ -143,11 +142,9 @@ class GlobalFormatter(logging.Formatter):
         if settings.time_zone:
             try:
                 self.timezone = pytz.timezone(settings.time_zone)
-                logging.info(
-                    f"Console logger time zone set to: {self.timezone}")
+                logging.info(f"Console logger time zone set to: {self.timezone}")
             except pytz.UnknownTimeZoneError:
-                logging.error(
-                    f"Console logger: invalid time zone: {settings.time_zone}")
+                logging.error(f"Console logger: invalid time zone: {settings.time_zone}")
         logging.Formatter.__init__(self, fmt=fmt, datefmt=datefmt)
 
     def formatTime(self, record, datefmt=None):
@@ -159,17 +156,14 @@ class GlobalFormatter(logging.Formatter):
 
     def format(self, record):
         record.emoji_is_present = (
-            record.emoji_is_present if hasattr(
-                record, "emoji_is_present") else False
+            record.emoji_is_present if hasattr(record, "emoji_is_present") else False
         )
         if (
             hasattr(record, "emoji")
             and self.settings.emoji is True
             and record.emoji_is_present is False
         ):
-            record.msg = emoji.emojize(
-                f"{record.emoji}  {record.msg.strip()}", language="alias"
-            )
+            record.msg = emoji.emojize(f"{record.emoji}  {record.msg.strip()}", language="alias")
             record.emoji_is_present = True
 
         if self.settings.emoji is False:
@@ -189,15 +183,12 @@ class GlobalFormatter(logging.Formatter):
             self.pushover(record)
 
             if self.settings.colored is True:
-                record.msg = (
-                    f"{self.settings.color_palette.get(record.event)}{record.msg}"
-                )
+                record.msg = f"{self.settings.color_palette.get(record.event)}{record.msg}"
 
         return super().format(record)
 
     def telegram(self, record):
-        skip_telegram = False if hasattr(
-            record, "skip_telegram") is False else True
+        skip_telegram = False if hasattr(record, "skip_telegram") is False else True
 
         if (
             self.settings.telegram is not None
@@ -207,8 +198,7 @@ class GlobalFormatter(logging.Formatter):
             self.settings.telegram.send(record.msg, record.event)
 
     def discord(self, record):
-        skip_discord = False if hasattr(
-            record, "skip_discord") is False else True
+        skip_discord = False if hasattr(record, "skip_discord") is False else True
 
         if (
             self.settings.discord is not None
@@ -219,8 +209,7 @@ class GlobalFormatter(logging.Formatter):
             self.settings.discord.send(record.msg, record.event)
 
     def matrix(self, record):
-        skip_matrix = False if hasattr(
-            record, "skip_matrix") is False else True
+        skip_matrix = False if hasattr(record, "skip_matrix") is False else True
 
         if (
             self.settings.matrix is not None
@@ -231,8 +220,7 @@ class GlobalFormatter(logging.Formatter):
             self.settings.matrix.send(record.msg, record.event)
 
     def pushover(self, record):
-        skip_pushover = False if hasattr(
-            record, "skip_pushover") is False else True
+        skip_pushover = False if hasattr(record, "skip_pushover") is False else True
 
         if (
             self.settings.pushover is not None
@@ -270,9 +258,7 @@ def configure_loggers(username, settings):
                 if settings.less is False
                 else "%(asctime)s - %(message)s"
             ),
-            datefmt=(
-                "%d/%m/%y %H:%M:%S" if settings.less is False else "%d/%m %H:%M:%S"
-            ),
+            datefmt=("%d/%m/%y %H:%M:%S" if settings.less is False else "%d/%m %H:%M:%S"),
             settings=settings,
         )
     )
@@ -281,24 +267,19 @@ def configure_loggers(username, settings):
         logs_path = os.path.join(Path().absolute(), "logs")
         Path(logs_path).mkdir(parents=True, exist_ok=True)
         if settings.auto_clear is True:
-            logs_file = os.path.join(
-                logs_path,
-                f"{username}.log",
-            )
+            logs_file = os.path.join(logs_path, f"{username}.log")
             file_handler = TimedRotatingFileHandler(
-                logs_file,
-                when="D",
-                interval=1,
-                backupCount=7,
-                encoding="utf-8",
-                delay=False,
+                logs_file, when="D", interval=1, backupCount=7, encoding="utf-8", delay=False
             )
         else:
             # Getting time zone from the console_handler's formatter since they are the same
-            tz = "" if console_handler.formatter.timezone is False else console_handler.formatter.timezone
+            tz = (
+                ""
+                if console_handler.formatter.timezone is False
+                else console_handler.formatter.timezone
+            )
             logs_file = os.path.join(
-                logs_path,
-                f"{username}.{datetime.now(tz).strftime('%Y%m%d-%H%M%S')}.log",
+                logs_path, f"{username}.{datetime.now(tz).strftime('%Y%m%d-%H%M%S')}.log"
             )
             file_handler = logging.FileHandler(logs_file, "w", "utf-8")
 
@@ -306,7 +287,7 @@ def configure_loggers(username, settings):
             FileFormatter(
                 fmt="%(asctime)s - %(levelname)s - %(name)s - [%(funcName)s]: %(message)s",
                 datefmt="%d/%m/%y %H:%M:%S",
-                settings=settings
+                settings=settings,
             )
         )
         file_handler.setLevel(settings.file_level)
@@ -318,8 +299,6 @@ def configure_loggers(username, settings):
         queue_listener.start()
         return logs_file, queue_listener
     else:
-        queue_listener = QueueListener(
-            logger_queue, console_handler, respect_handler_level=True
-        )
+        queue_listener = QueueListener(logger_queue, console_handler, respect_handler_level=True)
         queue_listener.start()
         return None, queue_listener

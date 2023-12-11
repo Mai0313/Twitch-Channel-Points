@@ -4,7 +4,7 @@ from TwitchChannelPointsMiner.classes.Settings import Settings
 from TwitchChannelPointsMiner.utils import percentage
 
 
-class Drop(object):
+class Drop:
     __slots__ = [
         "id",
         "name",
@@ -25,9 +25,7 @@ class Drop(object):
     def __init__(self, dict):
         self.id = dict["id"]
         self.name = dict["name"]
-        self.benefit = ", ".join(
-            list(set([bf["benefit"]["name"] for bf in dict["benefitEdges"]]))
-        )
+        self.benefit = ", ".join(list(set([bf["benefit"]["name"] for bf in dict["benefitEdges"]])))
         self.minutes_required = dict["requiredMinutesWatched"]
 
         self.has_preconditions_met = None  # [True, False], None we don't know
@@ -42,15 +40,10 @@ class Drop(object):
         self.start_at = datetime.strptime(dict["startAt"], "%Y-%m-%dT%H:%M:%SZ")
         self.dt_match = self.start_at < datetime.now() < self.end_at
 
-    def update(
-        self,
-        progress,
-    ):
+    def update(self, progress):
         self.has_preconditions_met = progress["hasPreconditionsMet"]
 
-        updated_percentage = percentage(
-            progress["currentMinutesWatched"], self.minutes_required
-        )
+        updated_percentage = percentage(progress["currentMinutesWatched"], self.minutes_required)
         quarter = round((updated_percentage / 25), 4).is_integer()
         self.is_printable = (
             # The new currentMinutesWatched are GT than previous
@@ -64,19 +57,14 @@ class Drop(object):
                     and quarter is True
                     and self.current_minutes_watched != 0
                 )
-                or (
-                    progress["currentMinutesWatched"] == 1
-                    and self.current_minutes_watched == 0
-                )
+                or (progress["currentMinutesWatched"] == 1 and self.current_minutes_watched == 0)
             )
         )
 
         self.current_minutes_watched = progress["currentMinutesWatched"]
         self.drop_instance_id = progress["dropInstanceID"]
         self.is_claimed = progress["isClaimed"]
-        self.is_claimable = (
-            self.is_claimed is False and self.drop_instance_id is not None
-        )
+        self.is_claimable = self.is_claimed is False and self.drop_instance_id is not None
         self.percentage_progress = updated_percentage
 
     def __repr__(self):
