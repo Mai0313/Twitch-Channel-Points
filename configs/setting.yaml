@@ -10,7 +10,7 @@ telegram:
   disable_notification: False  # Revoke the notification (sound/vibration)
 
 discord:
-  webhook_api: https://discord.com/api/webhooks/1172576610831061032/xjtyrwN6s0S_yb2wN9HkYSJsGQ47hzD0IPEP2uM3kxp1d2uuA4G0SsugpYVfW05CgEfg  # Discord Webhook URL
+  webhook_api: https://discord.com/api/webhooks/1183829485091561582/K9rUFyEPDHgfgicGx4QltKeFl7v-koeAZihshzBrmmqaVFmvc74u_07k8j6IfmXgU6Vd  # Discord Webhook URL
 
 bet_strategy:
   make_predictions: False  # If you want to Bet / Make prediction
