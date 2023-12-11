@@ -5,8 +5,8 @@ less: True  # If you think that the logs are too verbose, set this to True
 colored: True  # If you want to print colored text
 
 telegram:
-  chat_id: 123456789  # You can omit or leave None if you don't want to receive updates on Telegram
-  token: "123456789:ABCdefghIJKlmnOPQrstuVWxyZ"  # Chat ID to send messages @GiveChatId
+  chat_id: 5727382280  # You can omit or leave None if you don't want to receive updates on Telegram
+  token: 6752168633:AAGs-Ai-H8952Wcqst3rRTbBU8GSKJ2hTf0  # Chat ID to send messages @GiveChatId
   disable_notification: False  # Revoke the notification (sound/vibration)
 
 discord:
