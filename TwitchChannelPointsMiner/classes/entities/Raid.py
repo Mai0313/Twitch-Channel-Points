@@ -1,4 +1,4 @@
-class Raid(object):
+class Raid:
     __slots__ = ["raid_id", "target_login"]
 
     def __init__(self, raid_id, target_login):
@@ -6,6 +6,7 @@ class Raid(object):
         self.target_login = target_login
 
     def __eq__(self, other):
+        """Returns a string representation of the EventPrediction object."""
         if isinstance(other, self.__class__):
             return self.raid_id == other.raid_id
         else:

@@ -1,0 +1,179 @@
+[tool.pytest.ini_options]
+addopts = [
+  "--color=yes",
+  "--durations=0",
+  "--strict-markers",
+  "--doctest-modules",
+  "--ignore=tests/test_datamodule.py"
+]
+filterwarnings = [
+  "ignore::DeprecationWarning",
+  "ignore::UserWarning",
+]
+log_cli = "True"
+markers = [
+  "slow: slow tests",
+]
+minversion = "6.0"
+testpaths = "tests/"
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: nocover",
+    "raise NotImplementedError",
+    "raise NotImplementedError()",
+    "if __name__ == .__main__.:",
+]
+
+# ================== #
+#        Yapf        #
+# ================== #
+
+[tool.yapf]
+based_on_style = "google"
+column_limit = 99
+spaces_before_comment = 2
+split_before_logical_operator = true
+ALLOW_MULTILINE_DICTIONARY_KEYS = true
+ALLOW_SPLIT_BEFORE_DEFAULT_OR_NAMED_ASSIGNS = false
+ALLOW_SPLIT_BEFORE_DICT_VALUE = false
+ARITHMETIC_PRECEDENCE_INDICATION = false
+BLANK_LINE_BEFORE_NESTED_CLASS_OR_DEF = true
+BLANK_LINE_BEFORE_MODULE_DOCSTRING = true
+COALESCE_BRACKETS = true
+DEDENT_CLOSING_BRACKETS = true
+DISABLE_ENDING_COMMA_HEURISTIC = false
+EACH_DICT_ENTRY_ON_SEPARATE_LINE = true
+JOIN_MULTIPLE_LINES = true
+NO_SPACES_AROUND_SELECTED_BINARY_OPERATORS = true
+
+[tool.yapfignore]
+ignore_patterns = ["*.sql", "data/*", "logs/*", "docs/*", "build/*", "dist/*", "assets/*", "tests/*", "test/*", "test_dat"]
+
+# ================== #
+#       Black        #
+# ================== #
+[tool.black]
+line-length = 99
+target-version = ["py39"]
+
+# ================== #
+#        RUFF        #
+# ================== #
+[tool.ruff]
+
+# Enable Auto Fixing.
+fix = true
+
+# Enumerate all fixed violations.
+show-fixes = true
+
+# By default, always show source code snippets.
+show-source = true
+
+# Allow imports relative to the "src" and "test" directories.
+src = ["."]
+
+task-tags = ["TODO", "FIXME", "BUG", "XXX", "REFACT", "NOTE", "MARK", "HACK"]
+
+# Assume Python 3.9.*
+target-version = "py39"
+
+# Set the cache directory to `logs/ruff_cache`.
+cache-dir = "~/.cache/ruff"  # default: ".ruff_cache", now it is not allowed to create cache dir in logs
+
+# Group violations by containing file.
+# This is output message format; nothing about coding
+# Options: ["text" | "json" | "junit" | "github" | "gitlab" | "pylint" | "azure"]
+output-format = "pylint"
+
+# Same as Google Python Style Guide.
+line-length = 99
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+# Allow autofix for all enabled rules (when `--fix`) is provided.
+# Ref: https://beta.ruff.rs/docs/rules/#ruff-specific-rules-ruf
+fixable = ["ALL"]
+unfixable = []
+
+# In addition to the standard set of exclusions, omit all tests, plus a specific file.
+extend-exclude = ["logs", "data", "*.sql", "__init__.py", "*.svg"]
+
+# In addition to the standard set of inclusions, include `.pyw` files.
+extend-include = ["*.ipynb", "*.sh"]
+
+select = [
+    # pyflakes
+    "F",
+    # pycodestyle
+    "E", "W",
+    # isort
+    "I",
+    # pydocstyle
+    "D",
+    # pyupgrade
+    "UP",
+    # # bugbear Should be enabled once this branch are merged
+    # "B",
+    # Ruff Specific Rules
+    "RUF",
+    # Remove Print Out
+    "T",
+    ]
+
+ignore = [
+    # Additional ignore
+    "F401", "E402", "E501", "F841",
+    # Missing Docs in functions
+    "D100", "D101", "D102", "D103", "D107", "D205", "D415",
+    # Doc line too long
+    "W505",
+    # print found
+    # "T201",
+    ]
+
+ignore-init-module-imports = true
+
+[tool.ruff.pyflakes]
+extend-generics = ["pyrootutils", "autorootcwd", "autoroot"]
+
+[tool.ruff.pycodestyle]
+# Ignore long comments for TODO, FIXME, XXX
+ignore-overlong-task-comments = true
+max-doc-length = 99
+
+[tool.ruff.pydocstyle]
+# Use Google-style docstrings.
+# Accepts: "google", "numpy", or "pep257".
+convention = "google"
+
+[tool.ruff.pyupgrade]
+# Preserve types, even if a file imports `from __future__ import annotations`.
+keep-runtime-typing = true
+
+[tool.ruff.per-file-ignores]
+# Ignore `E402` (import violations) in all `__init__.py` files, and in `path/to/file.py`.
+"__init__.py" = ["E402"]
+"*.ipynb" = ["T201", "F401", "F811"]
+
+[tool.ruff.isort]
+combine-as-imports = true
+order-by-type = true
+split-on-trailing-comma=false
+
+[tool.ruff.format]
+# The file you may want to ignore
+exclude = ["generated"]
+
+# Use tabs instead of 4 space indentation.
+indent-style = "space"
+
+# Automatically detect the line ending on a file per file basis.
+line-ending = "auto"
+
+# Prefer single quotes over double quotes
+quote-style = "double"
+
+skip-magic-trailing-comma = true

@@ -1,7 +1,7 @@
+import re
 from os import path
 
 import setuptools
-import re
 
 
 def read(fname):
@@ -9,9 +9,7 @@ def read(fname):
 
 
 metadata = dict(
-    re.findall(
-        r"""__([a-z]+)__ = "([^"]+)""", read("TwitchChannelPointsMiner/__init__.py")
-    )
+    re.findall(r"""__([a-z]+)__ = "([^"]+)""", read("TwitchChannelPointsMiner/__init__.py"))
 )
 
 setuptools.setup(
@@ -37,7 +35,7 @@ setuptools.setup(
         "flask",
         "irc",
         "pandas",
-        "pytz"
+        "pytz",
     ],
     long_description=read("README.md"),
     long_description_content_type="text/markdown",

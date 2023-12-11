@@ -266,7 +266,7 @@ function getStreamers() {
     $.getJSON('streamers', function (response) {
         streamersList = response;
         sortStreamers();
-        
+
         // Restore the selected streamer from localStorage on page load
         var selectedStreamer = localStorage.getItem("selectedStreamer");
 

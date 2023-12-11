@@ -11,13 +11,13 @@ import random
 import re
 import string
 import time
+
 # from datetime import datetime
 from pathlib import Path
 from secrets import choice, token_hex
 
 # import json
 # from base64 import urlsafe_b64decode
-
 import requests
 
 from TwitchChannelPointsMiner.classes.entities.Campaign import Campaign
@@ -26,29 +26,15 @@ from TwitchChannelPointsMiner.classes.Exceptions import (
     StreamerDoesNotExistException,
     StreamerIsOfflineException,
 )
-from TwitchChannelPointsMiner.classes.Settings import (
-    Events,
-    FollowersOrder,
-    Priority,
-    Settings,
-)
+from TwitchChannelPointsMiner.classes.Settings import Events, FollowersOrder, Priority, Settings
 from TwitchChannelPointsMiner.classes.TwitchLogin import TwitchLogin
-from TwitchChannelPointsMiner.constants import (
-    CLIENT_ID,
-    CLIENT_VERSION,
-    URL,
-    GQLOperations,
-)
-from TwitchChannelPointsMiner.utils import (
-    _millify,
-    create_chunks,
-    internet_connection_available,
-)
+from TwitchChannelPointsMiner.constants import CLIENT_ID, CLIENT_VERSION, URL, GQLOperations
+from TwitchChannelPointsMiner.utils import _millify, create_chunks, internet_connection_available
 
 logger = logging.getLogger(__name__)
 
 
-class Twitch(object):
+class Twitch:
     __slots__ = [
         "cookies_file",
         "user_agent",
@@ -67,9 +53,7 @@ class Twitch(object):
         Path(cookies_path).mkdir(parents=True, exist_ok=True)
         self.cookies_file = os.path.join(cookies_path, f"{username}.pkl")
         self.user_agent = user_agent
-        self.device_id = "".join(
-            choice(string.ascii_letters + string.digits) for _ in range(32)
-        )
+        self.device_id = "".join(choice(string.ascii_letters + string.digits) for _ in range(32))
         self.twitch_login = TwitchLogin(
             CLIENT_ID, self.device_id, username, self.user_agent, password=password
         )
@@ -109,7 +93,7 @@ class Twitch(object):
                     "player": "site",
                     "user_id": self.twitch_login.get_user_id(),
                     "live": True,
-                    "channel": streamer.username
+                    "channel": streamer.username,
                 }
 
                 if (
@@ -120,9 +104,7 @@ class Twitch(object):
                     event_properties["game"] = streamer.stream.game_name()
                     event_properties["game_id"] = streamer.stream.game_id()
                     # Update also the campaigns_ids so we are sure to tracking the correct campaign
-                    streamer.stream.campaigns_ids = (
-                        self.__get_campaign_ids_from_streamer(streamer)
-                    )
+                    streamer.stream.campaigns_ids = self.__get_campaign_ids_from_streamer(streamer)
 
                 streamer.stream.payload = [
                     {"event": "minute-watched", "properties": event_properties}
@@ -133,10 +115,10 @@ class Twitch(object):
             # fixes AttributeError: 'NoneType' object has no attribute 'group'
             # headers = {"User-Agent": self.user_agent}
             from TwitchChannelPointsMiner.constants import USER_AGENTS
+
             headers = {"User-Agent": USER_AGENTS["Linux"]["FIREFOX"]}
 
-            main_page_request = requests.get(
-                streamer.streamer_url, headers=headers)
+            main_page_request = requests.get(streamer.streamer_url, headers=headers)
             response = main_page_request.text
             # logger.info(response)
             regex_settings = "(https://static.twitchcdn.net/config/settings.*?js)"
@@ -145,11 +127,9 @@ class Twitch(object):
             settings_request = requests.get(settings_url, headers=headers)
             response = settings_request.text
             regex_spade = '"spade_url":"(.*?)"'
-            streamer.stream.spade_url = re.search(
-                regex_spade, response).group(1)
+            streamer.stream.spade_url = re.search(regex_spade, response).group(1)
         except requests.exceptions.RequestException as e:
-            logger.error(
-                f"Something went wrong during extraction of 'spade_url': {e}")
+            logger.error(f"Something went wrong during extraction of 'spade_url': {e}")
 
     def get_broadcast_id(self, streamer):
         json_data = copy.deepcopy(GQLOperations.WithIsStreamLiveQuery)
@@ -163,8 +143,7 @@ class Twitch(object):
                 raise StreamerIsOfflineException
 
     def get_stream_info(self, streamer):
-        json_data = copy.deepcopy(
-            GQLOperations.VideoPlayerStreamInfoOverlayChannel)
+        json_data = copy.deepcopy(GQLOperations.VideoPlayerStreamInfoOverlayChannel)
         json_data["variables"] = {"channel": streamer.username}
         response = self.post_gql_request(json_data)
         if response != {}:
@@ -204,9 +183,7 @@ class Twitch(object):
         else:
             return json_response["data"]["user"]["id"]
 
-    def get_followers(
-        self, limit: int = 100, order: FollowersOrder = FollowersOrder.ASC
-    ):
+    def get_followers(self, limit: int = 100, order: FollowersOrder = FollowersOrder.ASC):
         json_data = copy.deepcopy(GQLOperations.ChannelFollows)
         json_data["variables"] = {"limit": limit, "order": str(order)}
         has_next = True
@@ -236,8 +213,7 @@ class Twitch(object):
 
             logger.info(
                 f"Joining raid from {streamer} to {raid.target_login}!",
-                extra={"emoji": ":performing_arts:",
-                       "event": Events.JOIN_RAID},
+                extra={"emoji": ":performing_arts:", "event": Events.JOIN_RAID},
             )
 
     def viewer_is_mod(self, streamer):
@@ -263,9 +239,7 @@ class Twitch(object):
         # Check internet connection ...
         while internet_connection_available() is False:
             random_sleep = random.randint(1, 3)
-            logger.warning(
-                f"No internet connection available! Retry after {random_sleep}m"
-            )
+            logger.warning(f"No internet connection available! Retry after {random_sleep}m")
             self.__chuncked_sleep(random_sleep * 60, chunk_size=chunk_size)
 
     def post_gql_request(self, json_data):
@@ -288,9 +262,7 @@ class Twitch(object):
             )
             return response.json()
         except requests.exceptions.RequestException as e:
-            logger.error(
-                f"Error with GQLOperations ({json_data['operationName']}): {e}"
-            )
+            logger.error(f"Error with GQLOperations ({json_data['operationName']}): {e}")
             return {}
 
     # Request for Integrity Token
@@ -353,9 +325,7 @@ class Twitch(object):
         try:
             response = requests.get(URL)
             if response.status_code != 200:
-                logger.debug(
-                    f"Error with update_client_version: {response.status_code}"
-                )
+                logger.debug(f"Error with update_client_version: {response.status_code}")
                 return self.client_version
             matcher = re.search(self.twilight_build_id_pattern, response.text)
             if not matcher:
@@ -376,8 +346,7 @@ class Twitch(object):
                     for i in range(0, len(streamers))
                     if streamers[i].is_online is True
                     and (
-                        streamers[i].online_at == 0
-                        or (time.time() - streamers[i].online_at) > 30
+                        streamers[i].online_at == 0 or (time.time() - streamers[i].online_at) > 30
                     )
                 ]
 
@@ -394,24 +363,19 @@ class Twitch(object):
                         streamers_watching += streamers_index[:2]
 
                     elif (
-                        prior in [Priority.POINTS_ASCENDING,
-                                  Priority.POINTS_DESCEDING]
+                        prior in [Priority.POINTS_ASCENDING, Priority.POINTS_DESCEDING]
                         and len(streamers_watching) < 2
                     ):
                         items = [
-                            {"points": streamers[index].channel_points,
-                                "index": index}
+                            {"points": streamers[index].channel_points, "index": index}
                             for index in streamers_index
                         ]
                         items = sorted(
                             items,
                             key=lambda x: x["points"],
-                            reverse=(
-                                True if prior == Priority.POINTS_DESCEDING else False
-                            ),
+                            reverse=(True if prior == Priority.POINTS_DESCEDING else False),
                         )
-                        streamers_watching += [item["index"]
-                                               for item in items][:2]
+                        streamers_watching += [item["index"] for item in items][:2]
 
                     elif prior == Priority.STREAK and len(streamers_watching) < 2:
                         """
@@ -426,12 +390,7 @@ class Twitch(object):
                                 and streamers[index].stream.watch_streak_missing is True
                                 and (
                                     streamers[index].offline_at == 0
-                                    or (
-                                        (time.time() -
-                                         streamers[index].offline_at)
-                                        // 60
-                                    )
-                                    > 30
+                                    or ((time.time() - streamers[index].offline_at) // 60) > 30
                                 )
                                 and streamers[index].stream.minute_watched < 1
                             ):
@@ -454,8 +413,7 @@ class Twitch(object):
                         ]
                         streamers_with_multiplier = sorted(
                             streamers_with_multiplier,
-                            key=lambda x: streamers[x].total_points_multiplier(
-                            ),
+                            key=lambda x: streamers[x].total_points_multiplier(),
                             reverse=True,
                         )
                         streamers_watching += streamers_with_multiplier[:2]
@@ -514,33 +472,26 @@ class Twitch(object):
 
                                         if Settings.logger.telegram is not None:
                                             Settings.logger.telegram.send(
-                                                "\n".join(drop_messages),
-                                                Events.DROP_STATUS,
+                                                "\n".join(drop_messages), Events.DROP_STATUS
                                             )
 
                                         if Settings.logger.discord is not None:
                                             Settings.logger.discord.send(
-                                                "\n".join(drop_messages),
-                                                Events.DROP_STATUS,
+                                                "\n".join(drop_messages), Events.DROP_STATUS
                                             )
 
                     except requests.exceptions.ConnectionError as e:
-                        logger.error(
-                            f"Error while trying to send minute watched: {e}")
+                        logger.error(f"Error while trying to send minute watched: {e}")
                         self.__check_connection_handler(chunk_size)
                     except requests.exceptions.Timeout as e:
-                        logger.error(
-                            f"Error while trying to send minute watched: {e}")
+                        logger.error(f"Error while trying to send minute watched: {e}")
 
-                    self.__chuncked_sleep(
-                        next_iteration - time.time(), chunk_size=chunk_size
-                    )
+                    self.__chuncked_sleep(next_iteration - time.time(), chunk_size=chunk_size)
 
                 if streamers_watching == []:
                     self.__chuncked_sleep(60, chunk_size=chunk_size)
             except Exception:
-                logger.error(
-                    "Exception raised in send minute watched", exc_info=True)
+                logger.error("Exception raised in send minute watched", exc_info=True)
 
     # === CHANNEL POINTS / PREDICTION === #
     # Load the amount of current points for a channel, check if a bonus is available
@@ -558,8 +509,7 @@ class Twitch(object):
             streamer.activeMultipliers = community_points["activeMultipliers"]
 
             if community_points["availableClaim"] is not None:
-                self.claim_bonus(
-                    streamer, community_points["availableClaim"]["id"])
+                self.claim_bonus(streamer, community_points["availableClaim"]["id"])
 
     def make_predictions(self, event):
         decision = event.bet.calculate(event.streamer.channel_points)
@@ -567,37 +517,25 @@ class Twitch(object):
 
         logger.info(
             f"Going to complete bet for {event}",
-            extra={
-                "emoji": ":four_leaf_clover:",
-                "event": Events.BET_GENERAL,
-            },
+            extra={"emoji": ":four_leaf_clover:", "event": Events.BET_GENERAL},
         )
         if event.status == "ACTIVE":
             skip, compared_value = event.bet.skip()
             if skip is True:
                 logger.info(
                     f"Skip betting for the event {event}",
-                    extra={
-                        "emoji": ":pushpin:",
-                        "event": Events.BET_FILTERS,
-                    },
+                    extra={"emoji": ":pushpin:", "event": Events.BET_FILTERS},
                 )
                 logger.info(
                     f"Skip settings {event.bet.settings.filter_condition}, current value is: {compared_value}",
-                    extra={
-                        "emoji": ":pushpin:",
-                        "event": Events.BET_FILTERS,
-                    },
+                    extra={"emoji": ":pushpin:", "event": Events.BET_FILTERS},
                 )
             else:
                 if decision["amount"] >= 10:
                     logger.info(
                         # f"Place {_millify(decision['amount'])} channel points on: {event.bet.get_outcome(selector_index)}",
                         f"Place {_millify(decision['amount'])} channel points on: {event.bet.get_outcome(decision['choice'])}",
-                        extra={
-                            "emoji": ":four_leaf_clover:",
-                            "event": Events.BET_GENERAL,
-                        },
+                        extra={"emoji": ":four_leaf_clover:", "event": Events.BET_GENERAL},
                     )
 
                     json_data = copy.deepcopy(GQLOperations.MakePrediction)
@@ -619,26 +557,17 @@ class Twitch(object):
                         error_code = response["data"]["makePrediction"]["error"]["code"]
                         logger.error(
                             f"Failed to place bet, error: {error_code}",
-                            extra={
-                                "emoji": ":four_leaf_clover:",
-                                "event": Events.BET_FAILED,
-                            },
+                            extra={"emoji": ":four_leaf_clover:", "event": Events.BET_FAILED},
                         )
                 else:
                     logger.info(
                         f"Bet won't be placed as the amount {_millify(decision['amount'])} is less than the minimum required 10",
-                        extra={
-                            "emoji": ":four_leaf_clover:",
-                            "event": Events.BET_GENERAL,
-                        },
+                        extra={"emoji": ":four_leaf_clover:", "event": Events.BET_GENERAL},
                     )
         else:
             logger.info(
                 f"Oh no! The event is not active anymore! Current status: {event.status}",
-                extra={
-                    "emoji": ":disappointed_relieved:",
-                    "event": Events.BET_FAILED,
-                },
+                extra={"emoji": ":disappointed_relieved:", "event": Events.BET_FAILED},
             )
 
     def claim_bonus(self, streamer, claim_id):
@@ -649,9 +578,7 @@ class Twitch(object):
             )
 
         json_data = copy.deepcopy(GQLOperations.ClaimCommunityPoints)
-        json_data["variables"] = {
-            "input": {"channelID": streamer.channel_id, "claimID": claim_id}
-        }
+        json_data["variables"] = {"input": {"channelID": streamer.channel_id, "claimID": claim_id}}
         self.post_gql_request(json_data)
 
     # === MOMENTS === #
@@ -659,30 +586,23 @@ class Twitch(object):
         if Settings.logger.less is False:
             logger.info(
                 f"Claiming the moment for {streamer}!",
-                extra={"emoji": ":video_camera:",
-                       "event": Events.MOMENT_CLAIM},
+                extra={"emoji": ":video_camera:", "event": Events.MOMENT_CLAIM},
             )
 
         json_data = copy.deepcopy(GQLOperations.CommunityMomentCallout_Claim)
-        json_data["variables"] = {
-            "input": {"momentID": moment_id}
-        }
+        json_data["variables"] = {"input": {"momentID": moment_id}}
         self.post_gql_request(json_data)
 
     # === CAMPAIGNS / DROPS / INVENTORY === #
     def __get_campaign_ids_from_streamer(self, streamer):
-        json_data = copy.deepcopy(
-            GQLOperations.DropsHighlightService_AvailableDrops)
+        json_data = copy.deepcopy(GQLOperations.DropsHighlightService_AvailableDrops)
         json_data["variables"] = {"channelID": streamer.channel_id}
         response = self.post_gql_request(json_data)
         try:
             return (
                 []
                 if response["data"]["channel"]["viewerDropCampaigns"] is None
-                else [
-                    item["id"]
-                    for item in response["data"]["channel"]["viewerDropCampaigns"]
-                ]
+                else [item["id"] for item in response["data"]["channel"]["viewerDropCampaigns"]]
             )
         except (ValueError, KeyError):
             return []
@@ -690,9 +610,7 @@ class Twitch(object):
     def __get_inventory(self):
         response = self.post_gql_request(GQLOperations.Inventory)
         try:
-            return (
-                response["data"]["currentUser"]["inventory"] if response != {} else {}
-            )
+            return response["data"]["currentUser"]["inventory"] if response != {} else {}
         except (ValueError, KeyError, TypeError):
             return {}
 
@@ -701,8 +619,7 @@ class Twitch(object):
         campaigns = response["data"]["currentUser"]["dropCampaigns"] or []
 
         if status is not None:
-            campaigns = list(
-                filter(lambda x: x["status"] == status.upper(), campaigns)) or []
+            campaigns = list(filter(lambda x: x["status"] == status.upper(), campaigns)) or []
 
         return campaigns
 
@@ -712,8 +629,7 @@ class Twitch(object):
         for chunk in chunks:
             json_data = []
             for campaign in chunk:
-                json_data.append(copy.deepcopy(
-                    GQLOperations.DropCampaignDetails))
+                json_data.append(copy.deepcopy(GQLOperations.DropCampaignDetails))
                 json_data[-1]["variables"] = {
                     "dropID": campaign["id"],
                     "channelLogin": f"{self.twitch_login.get_user_id()}",
@@ -729,10 +645,7 @@ class Twitch(object):
         # We need the inventory only for get the real updated value/progress
         # Get data from inventory and sync current status with streamers.campaigns
         inventory = self.__get_inventory()
-        if inventory not in [None, {}] and inventory["dropCampaignsInProgress"] not in [
-            None,
-            {},
-        ]:
+        if inventory not in [None, {}] and inventory["dropCampaignsInProgress"] not in [None, {}]:
             # Iterate all campaigns from dashboard (only active, with working drops)
             # In this array we have also the campaigns never started from us (not in nventory)
             for i in range(len(campaigns)):
@@ -741,22 +654,17 @@ class Twitch(object):
                 for progress in inventory["dropCampaignsInProgress"]:
                     if progress["id"] == campaigns[i].id:
                         campaigns[i].in_inventory = True
-                        campaigns[i].sync_drops(
-                            progress["timeBasedDrops"], self.claim_drop
-                        )
+                        campaigns[i].sync_drops(progress["timeBasedDrops"], self.claim_drop)
                         # Remove all the claimed drops
                         campaigns[i].clear_drops()
                         break
         return campaigns
 
     def claim_drop(self, drop):
-        logger.info(
-            f"Claim {drop}", extra={"emoji": ":package:", "event": Events.DROP_CLAIM}
-        )
+        logger.info(f"Claim {drop}", extra={"emoji": ":package:", "event": Events.DROP_CLAIM})
 
         json_data = copy.deepcopy(GQLOperations.DropsPage_ClaimDropRewards)
-        json_data["variables"] = {
-            "input": {"dropInstanceID": drop.drop_instance_id}}
+        json_data["variables"] = {"input": {"dropInstanceID": drop.drop_instance_id}}
         response = self.post_gql_request(json_data)
         try:
             # response["data"]["claimDropRewards"] can be null and respose["data"]["errors"] != []
@@ -797,7 +705,6 @@ class Twitch(object):
                 if (
                     campaigns_update == 0
                     # or ((time.time() - campaigns_update) / 60) > 60
-
                     # TEMPORARY AUTO DROP CLAIMING FIX
                     # 30 minutes instead of 60 minutes
                     or ((time.time() - campaigns_update) / 30) > 30

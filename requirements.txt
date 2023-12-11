@@ -10,3 +10,5 @@ flask
 irc
 pandas
 pytz
+browser_cookie3
+rich

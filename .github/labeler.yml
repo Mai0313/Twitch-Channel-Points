@@ -1,0 +1,26 @@
+"Feature: New File":
+- 'src/**/*'
+- 'tests/**/*'
+
+"Bugfix: Source Code":
+- 'src/**/*.py'
+
+"Chore: Tests":
+- 'tests/**/*.py'
+
+"Chore: Documentation":
+- '**/*.md'
+- 'docs/**/*'
+
+"Chore: CI/CD Workflow":
+- .github/workflows/**
+
+"Chore: CI/CD Config":
+- .github/**
+
+"Chore: Code Style":
+- .pre-commit-config.yaml
+- pyproject.toml
+
+"Chore: Requirements":
+- requirements.txt

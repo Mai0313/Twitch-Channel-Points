@@ -1,4 +1,4 @@
-class PubsubTopic(object):
+class PubsubTopic:
     __slots__ = ["topic", "user_id", "streamer"]
 
     def __init__(self, topic, user_id=None, streamer=None):
@@ -10,6 +10,7 @@ class PubsubTopic(object):
         return self.streamer is None
 
     def __str__(self):
+        """Returns a string representation of the EventPrediction object."""
         if self.is_user_topic():
             return f"{self.topic}.{self.user_id}"
         else:

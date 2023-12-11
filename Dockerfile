@@ -21,7 +21,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -qq -y --fix-missing --no-ins
     libblas-dev \
     liblapack-dev \
     make \
-    cmake \    
+    cmake \
     automake \
     ninja-build \
     g++ \

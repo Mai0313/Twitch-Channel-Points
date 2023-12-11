@@ -1,0 +1,27 @@
+name: Labeler
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+jobs:
+  auto_labeler:
+    permissions:
+      contents: read
+      pull-requests: write
+    runs-on: ubuntu-latest
+    # container: catthehacker/ubuntu:act-latest  # Uncomment it if you use it on Gitea
+
+    steps:
+      - name: Disable SSL Verify
+        run: git config --global http.sslVerify false
+
+      - uses: actions/labeler@v4
+        id: labeler
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          sync-labels: ''
+          configuration-path: .github/labeler.yml
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}-${{ github.event_name == 'workflow_dispatch' }}
+  cancel-in-progress: true

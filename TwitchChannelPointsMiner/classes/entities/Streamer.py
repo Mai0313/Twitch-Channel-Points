@@ -4,6 +4,7 @@ import os
 import time
 from datetime import datetime
 from threading import Lock
+from typing import Optional
 
 from TwitchChannelPointsMiner.classes.Chat import ChatPresence, ThreadChat
 from TwitchChannelPointsMiner.classes.entities.Bet import BetSettings, DelayMode
@@ -15,7 +16,7 @@ from TwitchChannelPointsMiner.utils import _millify
 logger = logging.getLogger(__name__)
 
 
-class StreamerSettings(object):
+class StreamerSettings:
     __slots__ = [
         "make_predictions",
         "follow_raid",
@@ -28,11 +29,11 @@ class StreamerSettings(object):
 
     def __init__(
         self,
-        make_predictions: bool = None,
-        follow_raid: bool = None,
-        claim_drops: bool = None,
-        claim_moments: bool = None,
-        watch_streak: bool = None,
+        make_predictions: Optional[bool] = None,
+        follow_raid: Optional[bool] = None,
+        claim_drops: Optional[bool] = None,
+        claim_moments: Optional[bool] = None,
+        watch_streak: Optional[bool] = None,
         bet: BetSettings = None,
         chat: ChatPresence = None,
     ):
@@ -60,10 +61,11 @@ class StreamerSettings(object):
             self.chat = ChatPresence.ONLINE
 
     def __repr__(self):
+        """Returns a string representation of the EventPrediction object."""
         return f"BetSettings(make_predictions={self.make_predictions}, follow_raid={self.follow_raid}, claim_drops={self.claim_drops}, claim_moments={self.claim_moments}, watch_streak={self.watch_streak}, bet={self.bet}, chat={self.chat})"
 
 
-class Streamer(object):
+class Streamer:
     __slots__ = [
         "username",
         "channel_id",
@@ -108,9 +110,11 @@ class Streamer(object):
         self.mutex = Lock()
 
     def __repr__(self):
+        """Returns a string representation of the EventPrediction object."""
         return f"Streamer(username={self.username}, channel_id={self.channel_id}, channel_points={_millify(self.channel_points)})"
 
     def __str__(self):
+        """Returns a string representation of the EventPrediction object."""
         return (
             f"{self.username} ({_millify(self.channel_points)} points)"
             if Settings.logger.less
@@ -125,11 +129,7 @@ class Streamer(object):
         self.toggle_chat()
 
         logger.info(
-            f"{self} is Offline!",
-            extra={
-                "emoji": ":sleeping:",
-                "event": Events.STREAMER_OFFLINE,
-            },
+            f"{self} is Offline!", extra={"emoji": ":sleeping:", "event": Events.STREAMER_OFFLINE}
         )
 
     def set_online(self):
@@ -142,10 +142,7 @@ class Streamer(object):
 
         logger.info(
             f"{self} is Online!",
-            extra={
-                "emoji": ":partying_face:",
-                "event": Events.STREAMER_ONLINE,
-            },
+            extra={"emoji": ":partying_face:", "event": Events.STREAMER_ONLINE},
         )
 
     def print_history(self):
@@ -182,12 +179,7 @@ class Streamer(object):
 
     def total_points_multiplier(self):
         return (
-            sum(
-                map(
-                    lambda x: x["factor"],
-                    self.activeMultipliers,
-                ),
-            )
+            sum(map(lambda x: x["factor"], self.activeMultipliers))
             if self.activeMultipliers is not None
             else 0
         )
@@ -211,7 +203,11 @@ class Streamer(object):
             primary_color = (
                 "#45c1ff"  # blue #45c1ff yellow #ffe045 green #36b535 red #ff4545
                 if event_type == "WATCH_STREAK"
-                else ("#ffe045" if event_type == "PREDICTION_MADE" else ("#36b535" if event_type == "WIN" else "#ff4545"))
+                else (
+                    "#ffe045"
+                    if event_type == "PREDICTION_MADE"
+                    else ("#36b535" if event_type == "WIN" else "#ff4545")
+                )
             )
             data = {
                 "borderColor": primary_color,
@@ -236,13 +232,12 @@ class Streamer(object):
                 data.update({"z": event_type.replace("_", " ").title()})
 
         fname = os.path.join(Settings.analytics_path, f"{self.username}.json")
-        temp_fname = fname + '.temp'  # Temporary file name
+        temp_fname = fname + ".temp"  # Temporary file name
 
         with self.mutex:
             # Create and write to the temporary file
             with open(temp_fname, "w") as temp_file:
-                json_data = json.load(
-                    open(fname, "r")) if os.path.isfile(fname) else {}
+                json_data = json.load(open(fname)) if os.path.isfile(fname) else {}
                 if key not in json_data:
                     json_data[key] = []
                 json_data[key].append(data)
@@ -257,11 +252,7 @@ class Streamer(object):
 
             # Recreate a new thread to start again
             # raise RuntimeError("threads can only be started once")
-            self.irc_chat = ThreadChat(
-                self.irc_chat.username,
-                self.irc_chat.token,
-                self.username,
-            )
+            self.irc_chat = ThreadChat(self.irc_chat.username, self.irc_chat.token, self.username)
 
     def __join_chat(self):
         if self.irc_chat is not None:

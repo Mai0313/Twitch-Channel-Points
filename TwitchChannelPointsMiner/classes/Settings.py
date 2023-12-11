@@ -11,17 +11,25 @@ class Priority(Enum):
 
 
 class FollowersOrder(Enum):
+    """Enum representing the order of followers."""
+
     ASC = auto()
     DESC = auto()
 
     def __str__(self):
+        """Returns a string representation of the object."""
         return self.name
 
 
 # Empty object shared between class
-class Settings(object):
-    __slots__ = ["logger", "streamer_settings",
-                 "enable_analytics", "disable_ssl_cert_verification", "disable_at_in_nickname"]
+class Settings:
+    __slots__ = [
+        "logger",
+        "streamer_settings",
+        "enable_analytics",
+        "disable_ssl_cert_verification",
+        "disable_at_in_nickname",
+    ]
 
 
 class Events(Enum):
@@ -46,6 +54,7 @@ class Events(Enum):
     CHAT_MENTION = auto()
 
     def __str__(self):
+        """Returns a string representation of the object."""
         return self.name
 
     @classmethod
