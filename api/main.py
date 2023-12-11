@@ -32,10 +32,11 @@ def check_platform():
 
 
 config = OmegaConf.load("./configs/setting.yaml")
+secret = OmegaConf.load("./configs/secret.yaml")
 
 twitch_miner = TwitchChannelPointsMiner(
-    username=config.username,
-    password=config.password,
+    username=secret.username,
+    password=secret.password,
     claim_drops_startup=config.claim_drops_startup,
     priority=[  # Custom priority in this case for example:
         Priority.STREAK,  # - We want first of all to catch all watch streak from all streamers
