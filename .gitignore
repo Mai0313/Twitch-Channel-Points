@@ -176,4 +176,4 @@ keep_replit_alive.py
 replit.nix
 
 # Config file
-/configs/setting.yaml
+/configs/secret.yaml
