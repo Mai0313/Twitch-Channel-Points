@@ -5,6 +5,7 @@ import platform
 import autorootcwd
 from colorama import Fore
 from omegaconf import OmegaConf
+from rich.logging import RichHandler
 
 from TwitchChannelPointsMiner import TwitchChannelPointsMiner
 from TwitchChannelPointsMiner.classes.Chat import ChatPresence
@@ -21,6 +22,11 @@ from TwitchChannelPointsMiner.classes.entities.Streamer import Streamer, Streame
 from TwitchChannelPointsMiner.classes.Settings import Events, FollowersOrder, Priority
 from TwitchChannelPointsMiner.classes.Telegram import Telegram
 from TwitchChannelPointsMiner.logger import ColorPalette, LoggerSettings
+
+FORMAT = "%(message)s"
+logging.basicConfig(level="NOTSET", format=FORMAT, datefmt="[%X]", handlers=[RichHandler()])
+
+logger = logging.getLogger("rich")
 
 
 def check_platform():

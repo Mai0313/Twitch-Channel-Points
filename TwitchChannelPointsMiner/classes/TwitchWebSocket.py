@@ -2,11 +2,18 @@ import json
 import logging
 import time
 
+from rich.logging import RichHandler
 from websocket import WebSocketApp, WebSocketConnectionClosedException
 
 from TwitchChannelPointsMiner.utils import create_nonce
 
 logger = logging.getLogger(__name__)
+
+
+FORMAT = "%(message)s"
+logging.basicConfig(level="NOTSET", format=FORMAT, datefmt="[%X]", handlers=[RichHandler()])
+
+logger = logging.getLogger("rich")
 
 
 class TwitchWebSocket(WebSocketApp):

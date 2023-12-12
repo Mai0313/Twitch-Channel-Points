@@ -8,12 +8,19 @@ from typing import Optional
 
 import pandas as pd
 from flask import Flask, Response, cli, render_template, request
+from rich.logging import RichHandler
 
 from TwitchChannelPointsMiner.classes.Settings import Settings
 from TwitchChannelPointsMiner.utils import download_file
 
 cli.show_server_banner = lambda *_: None
 logger = logging.getLogger(__name__)
+
+
+FORMAT = "%(message)s"
+logging.basicConfig(level="NOTSET", format=FORMAT, datefmt="[%X]", handlers=[RichHandler()])
+
+logger = logging.getLogger("rich")
 
 
 def streamers_available():

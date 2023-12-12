@@ -4,11 +4,18 @@ from enum import Enum, auto
 from threading import Thread
 
 from irc.bot import SingleServerIRCBot
+from rich.logging import RichHandler
 
 from TwitchChannelPointsMiner.classes.Settings import Events, Settings
 from TwitchChannelPointsMiner.constants import IRC, IRC_PORT
 
 logger = logging.getLogger(__name__)
+
+
+FORMAT = "%(message)s"
+logging.basicConfig(level="NOTSET", format=FORMAT, datefmt="[%X]", handlers=[RichHandler()])
+
+logger = logging.getLogger("rich")
 
 
 class ChatPresence(Enum):

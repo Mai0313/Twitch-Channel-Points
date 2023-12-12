@@ -10,6 +10,7 @@ from pathlib import Path
 import emoji
 import pytz
 from colorama import Fore, init
+from rich.logging import RichHandler
 
 from TwitchChannelPointsMiner.classes.Discord import Discord
 from TwitchChannelPointsMiner.classes.Matrix import Matrix
@@ -17,6 +18,11 @@ from TwitchChannelPointsMiner.classes.Pushover import Pushover
 from TwitchChannelPointsMiner.classes.Settings import Events
 from TwitchChannelPointsMiner.classes.Telegram import Telegram
 from TwitchChannelPointsMiner.utils import remove_emoji
+
+FORMAT = "%(message)s"
+logging.basicConfig(level="NOTSET", format=FORMAT, datefmt="[%X]", handlers=[RichHandler()])
+
+logger = logging.getLogger("rich")
 
 
 # Fore: BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET.

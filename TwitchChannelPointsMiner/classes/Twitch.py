@@ -19,6 +19,7 @@ from secrets import choice, token_hex
 # import json
 # from base64 import urlsafe_b64decode
 import requests
+from rich.logging import RichHandler
 
 from TwitchChannelPointsMiner.classes.entities.Campaign import Campaign
 from TwitchChannelPointsMiner.classes.entities.Drop import Drop
@@ -32,6 +33,12 @@ from TwitchChannelPointsMiner.constants import CLIENT_ID, CLIENT_VERSION, URL, G
 from TwitchChannelPointsMiner.utils import _millify, create_chunks, internet_connection_available
 
 logger = logging.getLogger(__name__)
+
+
+FORMAT = "%(message)s"
+logging.basicConfig(level="NOTSET", format=FORMAT, datefmt="[%X]", handlers=[RichHandler()])
+
+logger = logging.getLogger("rich")
 
 
 class Twitch:

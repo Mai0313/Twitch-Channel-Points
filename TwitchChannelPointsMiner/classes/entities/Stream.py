@@ -3,10 +3,18 @@ import logging
 import time
 from base64 import b64encode
 
+from rich.logging import RichHandler
+
 from TwitchChannelPointsMiner.classes.Settings import Settings
 from TwitchChannelPointsMiner.constants import DROP_ID
 
 logger = logging.getLogger(__name__)
+
+
+FORMAT = "%(message)s"
+logging.basicConfig(level="NOTSET", format=FORMAT, datefmt="[%X]", handlers=[RichHandler()])
+
+logger = logging.getLogger("rich")
 
 
 class Stream:
