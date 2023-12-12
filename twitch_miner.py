@@ -63,8 +63,8 @@ config = OmegaConf.load("./configs/setting.yaml")
 
 
 class TwitchMiner(BaseModel):
-    username: str = Field(..., example = "mai313", description="Twitch Username")
-    password: str = Field(..., example = "xxxxxxx", description="Twitch Password")
+    username: str = Field(..., example="mai313", description="Twitch Username")
+    password: str = Field(..., example="xxxxxxx", description="Twitch Password")
 
     def get_miner(self):
         return TwitchChannelPointsMiner(
