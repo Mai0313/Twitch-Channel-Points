@@ -6,7 +6,6 @@ import autorootcwd
 from colorama import Fore
 from omegaconf import OmegaConf
 from pydantic import BaseModel
-from rich.logging import RichHandler
 
 from TwitchChannelPointsMiner import TwitchChannelPointsMiner
 from TwitchChannelPointsMiner.classes.Chat import ChatPresence
@@ -25,11 +24,6 @@ from TwitchChannelPointsMiner.classes.Pushover import Pushover
 from TwitchChannelPointsMiner.classes.Settings import Events, FollowersOrder, Priority
 from TwitchChannelPointsMiner.classes.Telegram import Telegram
 from TwitchChannelPointsMiner.logger import ColorPalette, LoggerSettings
-
-FORMAT = "%(message)s"
-logging.basicConfig(level="NOTSET", format=FORMAT, datefmt="[%X]", handlers=[RichHandler()])
-
-logger = logging.getLogger("rich")
 
 
 def check_platform():
@@ -124,7 +118,10 @@ class TwitchMiner(BaseModel):
                     token="YOUR-APPLICATION-TOKEN",  # Create a application on the website, and use the token shown in your application.
                     priority=0,  # Read more about priority here: https://pushover.net/api#priority
                     sound="pushover",  # A list of sounds can be found here: https://pushover.net/api#sounds
-                    events=[Events.CHAT_MENTION, Events.DROP_CLAIM],  # Only these events will be sent.
+                    events=[
+                        Events.CHAT_MENTION,
+                        Events.DROP_CLAIM,
+                    ],  # Only these events will be sent.
                 ),
             ),
             streamer_settings=StreamerSettings(

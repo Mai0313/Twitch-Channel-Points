@@ -1,7 +1,6 @@
 import logging
 
 from colorama import Fore
-from rich.logging import RichHandler
 
 from TwitchChannelPointsMiner import TwitchChannelPointsMiner
 from TwitchChannelPointsMiner.classes.Chat import ChatPresence
@@ -20,11 +19,6 @@ from TwitchChannelPointsMiner.classes.Pushover import Pushover
 from TwitchChannelPointsMiner.classes.Settings import Events, FollowersOrder, Priority
 from TwitchChannelPointsMiner.classes.Telegram import Telegram
 from TwitchChannelPointsMiner.logger import ColorPalette, LoggerSettings
-
-FORMAT = "%(message)s"
-logging.basicConfig(level="NOTSET", format=FORMAT, datefmt="[%X]", handlers=[RichHandler()])
-
-logger = logging.getLogger("rich")
 
 twitch_miner = TwitchChannelPointsMiner(
     username="your-twitch-username",

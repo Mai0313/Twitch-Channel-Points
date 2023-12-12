@@ -14,7 +14,6 @@ from time import sleep
 
 import browser_cookie3
 import requests
-from rich.logging import RichHandler
 
 from TwitchChannelPointsMiner.classes.Exceptions import (
     BadCredentialsException,
@@ -24,11 +23,6 @@ from TwitchChannelPointsMiner.constants import CLIENT_ID, USER_AGENTS, GQLOperat
 
 logger = logging.getLogger(__name__)
 
-
-FORMAT = "%(message)s"
-logging.basicConfig(level="NOTSET", format=FORMAT, datefmt="[%X]", handlers=[RichHandler()])
-
-logger = logging.getLogger("rich")
 
 # def interceptor(request) -> str:
 #     if (

@@ -8,7 +8,6 @@ from threading import Thread, Timer
 
 # from pathlib import Path
 from dateutil import parser
-from rich.logging import RichHandler
 
 from TwitchChannelPointsMiner.classes.entities.EventPrediction import EventPrediction
 from TwitchChannelPointsMiner.classes.entities.Message import Message
@@ -19,12 +18,6 @@ from TwitchChannelPointsMiner.constants import WEBSOCKET
 from TwitchChannelPointsMiner.utils import get_streamer_index, internet_connection_available
 
 logger = logging.getLogger(__name__)
-
-
-FORMAT = "%(message)s"
-logging.basicConfig(level="NOTSET", format=FORMAT, datefmt="[%X]", handlers=[RichHandler()])
-
-logger = logging.getLogger("rich")
 
 
 class WebSocketsPool:

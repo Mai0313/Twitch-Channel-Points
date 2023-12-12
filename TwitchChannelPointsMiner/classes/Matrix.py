@@ -3,14 +3,8 @@ from textwrap import dedent
 from urllib.parse import quote
 
 import requests
-from rich.logging import RichHandler
 
 from TwitchChannelPointsMiner.classes.Settings import Events
-
-FORMAT = "%(message)s"
-logging.basicConfig(level="NOTSET", format=FORMAT, datefmt="[%X]", handlers=[RichHandler()])
-
-logger = logging.getLogger("rich")
 
 
 class Matrix:

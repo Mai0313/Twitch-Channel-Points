@@ -6,8 +6,6 @@ from datetime import datetime
 from threading import Lock
 from typing import Optional
 
-from rich.logging import RichHandler
-
 from TwitchChannelPointsMiner.classes.Chat import ChatPresence, ThreadChat
 from TwitchChannelPointsMiner.classes.entities.Bet import BetSettings, DelayMode
 from TwitchChannelPointsMiner.classes.entities.Stream import Stream
@@ -16,12 +14,6 @@ from TwitchChannelPointsMiner.constants import URL
 from TwitchChannelPointsMiner.utils import _millify
 
 logger = logging.getLogger(__name__)
-
-
-FORMAT = "%(message)s"
-logging.basicConfig(level="NOTSET", format=FORMAT, datefmt="[%X]", handlers=[RichHandler()])
-
-logger = logging.getLogger("rich")
 
 
 class StreamerSettings:
