@@ -5,7 +5,7 @@ import platform
 import autorootcwd
 from colorama import Fore
 from omegaconf import OmegaConf
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from TwitchChannelPointsMiner import TwitchChannelPointsMiner
 from TwitchChannelPointsMiner.classes.Chat import ChatPresence
@@ -42,11 +42,20 @@ def get_user_secret():
         secret = OmegaConf.load(secret_path)
         username, password = secret.username, secret.password
     else:
-        from dotenv import load_dotenv
+        if os.path.exists("./.env"):
+            from dotenv import load_dotenv
 
-        load_dotenv()
-        username = os.getenv("USERNAME")
-        password = os.getenv("PASSWORD")
+            load_dotenv()
+            username = os.getenv("USERNAME")
+            password = os.getenv("PASSWORD")
+        else:
+            username = input("Enter Your Twitch Username: ")
+            password = input("Enter Your Twitch Password: ")
+
+            # 將用戶名和密碼保存到 .env 文件中
+            with open("./.env", "w") as file:
+                file.write(f"USERNAME={username}\n")
+                file.write(f"PASSWORD={password}\n")
     return username, password
 
 
@@ -54,8 +63,8 @@ config = OmegaConf.load("./configs/setting.yaml")
 
 
 class TwitchMiner(BaseModel):
-    username: str
-    password: str
+    username: str = Field(..., example = "mai313", description="Twitch Username")
+    password: str = Field(..., example = "xxxxxxx", description="Twitch Password")
 
     def get_miner(self):
         return TwitchChannelPointsMiner(
