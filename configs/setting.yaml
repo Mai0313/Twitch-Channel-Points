@@ -1,4 +1,4 @@
-claim_drops_startup: False  # set it to True if you want to auto claim all drops from Twitch inventory on the startup
+claim_drops_startup: True  # set it to True if you want to auto claim all drops from Twitch inventory on the startup
 
 save: True  # If you want to save logs in a file (suggested)
 less: True  # If you think that the logs are too verbose, set this to True
