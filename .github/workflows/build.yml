@@ -22,9 +22,9 @@ on:
   #   types: [opened, reopened, synchronize]
 
 env:
-  REQUIREMENTS_FILE: requirements_build.txt
-  PYINSTALLER_FILE: main.py
-  ARTIFACT_NAME: main
+  REQUIREMENTS_FILE: requirements.txt
+  PYINSTALLER_FILE: twitch_miner.py
+  ARTIFACT_NAME: twitch_miner
 
 permissions:
   contents: read
