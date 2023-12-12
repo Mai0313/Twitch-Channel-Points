@@ -23,6 +23,7 @@ from TwitchChannelPointsMiner.constants import CLIENT_ID, USER_AGENTS, GQLOperat
 
 logger = logging.getLogger(__name__)
 
+
 # def interceptor(request) -> str:
 #     if (
 #         request.method == 'POST'

@@ -239,7 +239,7 @@ def configure_loggers(username, settings):
     logger_queue = queue.Queue(-1)
     queue_handler = QueueHandler(logger_queue)
     root_logger = logging.getLogger()
-    root_logger.setLevel(logging.DEBUG)
+    root_logger.setLevel(logging.INFO)
     # Add the queue handler to the root logger
     # Send log messages to another thread through the queue
     root_logger.addHandler(queue_handler)
