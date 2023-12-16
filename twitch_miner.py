@@ -26,37 +26,39 @@ from TwitchChannelPointsMiner.classes.Telegram import Telegram
 from TwitchChannelPointsMiner.logger import ColorPalette, LoggerSettings
 
 
-def check_platform():
-    """This function will check if you are using Windows or Linux/MacOS."""
-    if platform.system() == "Windows":
-        emoji = False
-    else:
-        emoji = True
-    return emoji
-
-
-def get_user_secret():
-    """This function will load username/password automatically from .env or secret.yaml file."""
-    secret_path = "./configs/secret.yaml"
-    if os.path.exists(secret_path):
-        secret = OmegaConf.load(secret_path)
-        username, password = secret.username, secret.password
-    else:
-        if os.path.exists("./.env"):
-            from dotenv import load_dotenv
-
-            load_dotenv()
-            username = os.getenv("USERNAME")
-            password = os.getenv("PASSWORD")
+class UserUtils(BaseModel):
+    @classmethod
+    def check_platform(self):
+        """This function will check if you are using Windows or Linux/MacOS."""
+        if platform.system() == "Windows":
+            emoji = False
         else:
-            username = input("Enter Your Twitch Username: ")
-            password = input("Enter Your Twitch Password: ")
+            emoji = True
+        return emoji
 
-            # 將用戶名和密碼保存到 .env 文件中
-            with open("./.env", "w") as file:
-                file.write(f"USERNAME={username}\n")
-                file.write(f"PASSWORD={password}\n")
-    return username, password
+    @classmethod
+    def get_user_secret(self):
+        """This function will load username/password automatically from .env or secret.yaml file."""
+        secret_path = "./configs/secret.yaml"
+        if os.path.exists(secret_path):
+            secret = OmegaConf.load(secret_path)
+            username, password = secret.username, secret.password
+        else:
+            if os.path.exists("./.env"):
+                from dotenv import load_dotenv
+
+                load_dotenv()
+                username = os.getenv("USERNAME")
+                password = os.getenv("PASSWORD")
+            else:
+                username = input("Enter Your Twitch Username: ")
+                password = input("Enter Your Twitch Password: ")
+
+                # 將用戶名和密碼保存到 .env 文件中
+                with open("./.env", "w") as file:
+                    file.write(f"USERNAME={username}\n")
+                    file.write(f"PASSWORD={password}\n")
+        return username, password
 
 
 config = OmegaConf.load("./configs/setting.yaml")
@@ -83,7 +85,7 @@ class TwitchMiner(BaseModel):
                 auto_clear=True,  # Create a file rotation handler with interval = 1D and backupCount = 7 if True (default)
                 time_zone="",  # Set a specific time zone for console and file loggers. Use tz database names. Example: "America/Denver"
                 file_level=logging.INFO,  # Level of logs - If you think the log file it's too big, use logging.INFO
-                emoji=check_platform(),
+                emoji=UserUtils.check_platform(),
                 less=config.less,
                 colored=config.colored,
                 color_palette=ColorPalette(  # You can also create a custom palette color (for the common message).
@@ -170,7 +172,7 @@ class TwitchMiner(BaseModel):
 # twitch_miner.analytics(host="127.0.0.1", port=5000, refresh=5, days_ago=7)   # Start the Analytics web-server
 
 if __name__ == "__main__":
-    username, password = get_user_secret()
+    username, password = UserUtils.get_user_secret()
     twitch_miner = TwitchMiner(username=username, password=password)
     twitch_miner = twitch_miner.get_miner()
     twitch_miner.mine(
